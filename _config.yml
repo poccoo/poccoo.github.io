@@ -53,32 +53,8 @@ social-network-links:
   email: "yiixin.zheng@gmail.com"
   rss: false  # remove this line if you don't want to show an RSS link at the bottom
   linkedin: yixin2377
+  telephone: +18052528948
 
-#  medium: Yixin Zheng
-#  reddit: yourname or r/yoursubreddit
-#  linkedin: daattali
-#  xing: Yixin Zheng
-#  stackoverflow: "3943160/daattali"
-#  snapchat: deanat78
-#  instagram: deanat78
-#  spotify: yourname
- telephone: +18052528948
-#  steam: deanat78
-#  twitch: yourname
-#  yelp: yourname
-#  telegram: yourname
-#  calendly: yourname
-#  mastodon: instance.url/@username
-#  bluesky: yourname
-#  ORCID: your ORCID ID
-#  google-scholar: your google scholar
-#  discord: "invite_code" or "users/userid" or "invite/invite_code"
-#  kaggle: yourname
-#  hackerrank: yourname
-#  gitlab: yourname
-#  itchio: yourname
-#  untappd: yourname
-#  strava: youruserid
 
 # If you want your website to generate an RSS feed, provide a description
 # The URL for the feed will be https://<your_website>/feed.xml
