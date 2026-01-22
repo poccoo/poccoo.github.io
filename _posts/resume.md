@@ -5,7 +5,7 @@ title: Resume
 
 ## Curriculum Vitae
 
-<a href="/assets/cv/Yixin_Biostat_CV.pdf" 
+<a href="{{ '/assets/cv/Yixin_Biostat_CV.pdf' | absolute_url }}"
    class="btn btn-primary"
    download>
 ⬇️ Download CV (PDF)
@@ -13,9 +13,15 @@ title: Resume
 
 <br><br>
 
-<iframe 
-  src="/assets/cv/Yixin_Biostat_CV.pdf"
+<object
+  data="{{ '/assets/cv/Yixin_Biostat_CV.pdf' | absolute_url }}"
+  type="application/pdf"
   width="100%"
-  height="900px"
-  style="border: 1px solid #ddd;">
-</iframe>
+  height="900">
+  <p>
+    Your browser cannot display PDFs.
+    <a href="{{ '/assets/cv/Yixin_Biostat_CV.pdf' | absolute_url }}">
+      Download the PDF instead.
+    </a>
+  </p>
+</object>
