@@ -52,7 +52,8 @@ round-avatar: true
 social-network-links:
   email: "yiixin.zheng@gmail.com"
   rss: true  # remove this line if you don't want to show an RSS link at the bottom
- linkedin: "www.linkedin.com/in/yixin2377"
+  linkedin: yixin2377
+
 #  medium: Yixin Zheng
 #  reddit: yourname or r/yoursubreddit
 #  linkedin: daattali
@@ -89,7 +90,7 @@ rss-description: This website is a virtual proof that I'm awesome
 
 # Select which social network share links to show in posts
 share-links-active:
-  twitter: true
+  twitter: false
   facebook: false
   linkedin: true
   vk: false
