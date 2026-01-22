@@ -8,8 +8,6 @@ I am a Biostatistics graduate student with strong training in statistical modeli
 
 My academic and research interests lie at the intersection of **biostatistics, clinical data analysis, and biomedical research**, with hands-on experience working with large-scale neuroimaging, transcriptomic, and real-world datasets.
 
----
-
 ## Research & Professional Background
 
 I am currently a **Research Assistant** in the **Neuroimaging Working Group (LeeLab)** at Columbia University / NYSPI, where I work on **resting-state fMRI functional connectivity analysis in Alzheimer’s disease**. My work focuses on:
@@ -21,7 +19,6 @@ I am currently a **Research Assistant** in the **Neuroimaging Working Group (Lee
 
 Previously, I conducted large-scale **meta-analyses of transcriptomic data** across human and mouse Alzheimer’s disease datasets, applying advanced co-expression network methods and cross-species comparisons. I have also gained industry experience through internships in **healthcare consulting (IQVIA)** and **financial data analysis**, strengthening my ability to work with real-world, business-oriented datasets.
 
----
 
 ## Technical Skills & Certification
 
