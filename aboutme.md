@@ -1,40 +1,48 @@
 ---
 layout: page
-title: About me
+title: About Me
 Columbia University Biostat Grat
 ---
 
-I am a Biostatistics graduate student with strong training in statistical modeling, longitudinal data analysis, and real-world clinical research. I am currently pursuing a **Master of Science in Biostatistics (Theory and Methods Track)** at **Columbia University Mailman School of Public Health**, with an expected graduation in **May 2026**.
+## About Me
 
-My academic and research interests lie at the intersection of **biostatistics, clinical data analysis, and biomedical research**, with hands-on experience working with large-scale neuroimaging, transcriptomic, and real-world datasets.
+I am a **Biostatistics graduate student** with strong applied training in **statistical modeling, real-world data analysis, and programming**, and a clear interest in **industry-facing roles** such as **Biostatistician, Data Analyst, and Quantitative Analyst**.
 
-## Research & Professional Background
+I am currently pursuing a **Master of Science in Biostatistics (Theory and Methods Track)** at the **Columbia University Mailman School of Public Health**, with an expected graduation in **May 2026**.
 
-I am currently a **Research Assistant** in the **Neuroimaging Working Group (LeeLab)** at Columbia University / NYSPI, where I work on **resting-state fMRI functional connectivity analysis in Alzheimer’s disease**. My work focuses on:
+My background combines **rigorous statistical theory** with **hands-on experience working on large, real-world datasets**, including clinical, biomedical, and healthcare-related data.
 
-- Longitudinal and repeated-measures modeling using **mixed-effects models**  
-- Mediation and interaction analysis with **quasi-Bayesian simulations**
-- Reproducible statistical workflows in **R**
-- Translating statistical results into clinically meaningful insights
+---
 
-Previously, I conducted large-scale **meta-analyses of transcriptomic data** across human and mouse Alzheimer’s disease datasets, applying advanced co-expression network methods and cross-species comparisons. I have also gained industry experience through internships in **healthcare consulting (IQVIA)** and **financial data analysis**, strengthening my ability to work with real-world, business-oriented datasets.
+## Industry & Applied Experience
 
+I currently work as a **Research Assistant** at Columbia University / NYSPI, where I analyze **large-scale neuroimaging and clinical datasets** related to Alzheimer’s disease. My role emphasizes **applied statistical analysis and reproducible workflows**, including:
+
+- Regression and **mixed-effects models** for longitudinal and repeated-measures data  
+- Mediation and interaction analysis using simulation-based inference  
+- Data cleaning, transformation, and analysis in **R and Python**  
+- Communicating statistical findings to multidisciplinary teams
+
+In addition to academic research, I have gained **industry exposure through healthcare consulting (IQVIA)** and data-focused roles, where I worked with structured, real-world datasets under practical constraints such as data quality, timelines, and stakeholder needs. These experiences strengthened my ability to translate quantitative analyses into **actionable insights**.
+
+---
 
 ## Technical Skills & Certification
 
-I am proficient in **R, Python, and SQL**, with applied experience in statistical modeling, data visualization, and reproducible research pipelines.  
-Importantly, I hold **SAS Base and SAS Advanced Certifications**, and I am comfortable working in **SAS, R, and Python** across academic and industry settings.
+I am proficient in **R, Python, SQL, and SAS**, with experience building end-to-end analytical workflows from raw data to reporting and visualization.
 
-**Key skills include:**
+I hold both **SAS Base and SAS Advanced Certifications**, and I am comfortable using **SAS in regulated or industry-standard environments**, particularly for data manipulation, statistical analysis, and reporting.
+
+**Key technical strengths include:**
 - Regression modeling and statistical inference  
-- Survival analysis and longitudinal data analysis  
-- Clinical and real-world data analysis  
-- Reproducible research and data visualization  
+- Longitudinal and real-world data analysis  
+- Data wrangling and validation  
+- Reproducible analysis pipelines and clear reporting  
 
 ---
 
 ## Career Interests
 
-I am actively seeking opportunities in **biostatistics, data analysis, and quantitative research**, particularly roles involving **clinical trials, real-world evidence, or biomedical research**. I enjoy collaborative, interdisciplinary environments and value translating complex statistical analyses into actionable insights.
+I am actively seeking **industry-oriented roles** in **biostatistics, data analytics, and quantitative research**, particularly within **pharmaceuticals, healthcare, life sciences, and consulting**. I thrive in collaborative environments and enjoy applying statistical methods to solve real-world problems.
 
-Please feel free to explore my **Resume** or contact me via **email or LinkedIn**.
+Please feel free to view my **Resume** or contact me via **email or LinkedIn**.
