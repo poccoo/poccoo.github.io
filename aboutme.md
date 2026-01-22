@@ -12,7 +12,6 @@ I am currently pursuing a **Master of Science in Biostatistics (Theory and Metho
 
 My background combines **rigorous statistical theory** with **hands-on experience working on large, real-world datasets**, including clinical, biomedical, and healthcare-related data.
 
----
 
 ## Industry & Applied Experience
 
@@ -25,7 +24,6 @@ I currently work as a **Research Assistant** at Columbia University / NYSPI, whe
 
 In addition to academic research, I have gained **industry exposure through healthcare consulting (IQVIA)** and data-focused roles, where I worked with structured, real-world datasets under practical constraints such as data quality, timelines, and stakeholder needs. These experiences strengthened my ability to translate quantitative analyses into **actionable insights**.
 
----
 
 ## Technical Skills & Certification
 
@@ -39,7 +37,6 @@ I hold both **SAS Base and SAS Advanced Certifications**, and I am comfortable u
 - Data wrangling and validation  
 - Reproducible analysis pipelines and clear reporting  
 
----
 
 ## Career Interests
 
