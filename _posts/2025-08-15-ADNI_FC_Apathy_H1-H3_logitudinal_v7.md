@@ -1,17 +1,12 @@
 ---
-title: "ADNI rs FMRI FC Analysis H1-H3"
-author: "Yixin Zheng"
-output:
-  html_document:
-    toc: true
-    toc_float: true
-    number_sections: true
-    code_folding: hide
-  pdf_document:
-    toc: true
-editor_options:
-  markdown:
-    wrap: 72
+layout: post
+title: ADNI rs FMRI FC Analysis
+subtitle: Baricitinib for Severe Alopecia Areata
+cover-img: /assets/img/image2.png
+tags: [FMRI, Function Connectivity]
+comments: true
+mathjax: true
+author: Yixin Zheng
 ---
 
 ```{r setup, include=FALSE}
