@@ -116,7 +116,7 @@ Both BRAVE-AA1 and BRAVE-AA2 trials were designed to achieve 90% power to test t
 
 Sample size calculations were based on a chi-square test for comparison of two proportions without continuity correction:
 
-n = (Z<sub>1−α/2</sub> + Z<sub>1−β</sub>)² × [p₁(1−p₁) + p₀(1−p₀)] / (p₁ − p₀)²
+$$ n = (Z<sub>1−α/2</sub> + Z<sub>1−β</sub>)² × [p₁(1−p₁) + p₀(1−p₀)] / (p₁ − p₀)² $$
 
 To account for attrition, noncompliance, and missing data, a 25% inflation factor was applied. Final sample sizes followed the published trial data for consistency: 625 participants for BRAVE-AA1 and 476 participants for BRAVE-AA2 (King et al., 2022).
 
@@ -135,15 +135,11 @@ Secondary efficacy endpoints include:
 
 These secondary endpoints complement the primary endpoint by incorporating both patient-reported and clinician-assessed perspectives on hair regrowth, providing a more comprehensive evaluation of treatment efficacy.
 
----
-
 ### 2.2 Safety Endpoints {#safety-endpoints}
 
 Safety assessments will include continuous monitoring and documentation of all adverse events (AEs) reported during the 36-week treatment period. Adverse events include, but are not limited to, death, initial or prolonged hospitalization, life-threatening events, persistent or significant disability, congenital anomalies, or birth defects. Investigators will collect data on the incidence, severity, and relationship of these events to the study drug.
 
 In addition to participant-reported AEs, safety evaluations will be conducted at each study visit by clinical investigators and will include measurement of vital signs and laboratory assessments such as liver enzymes, lipid profiles, and creatine kinase levels. Safety analyses will include all randomized participants who received at least one dose of study medication and had post-baseline safety data available.
-
----
 
 ### 2.3 Covariates {#covariates}
 
@@ -151,7 +147,6 @@ Several covariates will be included in the statistical analyses to adjust for po
 
 These covariates were selected based on clinical relevance. For example, age and BMI are known to influence autoimmune disease progression and may affect treatment response (Lepe et al., 2024). Adjustment for baseline SALT score accounts for disease severity at study entry, ensuring balanced comparisons across treatment groups.
 
----
 
 ## 3. Hypothesis and Decision Rules {#hypothesis-and-decision-rules}
 
@@ -163,10 +158,9 @@ The alternative hypothesis (H₁) states that a higher proportion of patients in
 
 Formally, let p₀ denote the proportion of responders in the placebo group, and p₁ and p₂ denote the proportions in the 2 mg and 4 mg baricitinib groups, respectively. Each dose will be compared independently against placebo:
 
-- H₀₁: p₁ = p₀ vs. H₁₁: p₁ > p₀  
-- H₀₂: p₂ = p₀ vs. H₁₂: p₂ > p₀  
+$$ H₀₁: p₁ = p₀ vs. H₁₁: p₁ > p₀  $$
+$$ H₀₂: p₂ = p₀ vs. H₁₂: p₂ > p₀ $$ 
 
----
 
 ### 3.2 Statistical Decision Rules {#statistical-decision-rules}
 
@@ -174,7 +168,6 @@ Primary hypotheses will be tested at a two-sided significance level of 0.05. The
 
 To control the familywise Type I error rate across primary and key secondary endpoints, a graphical multiple testing procedure will be applied. Each hypothesis will be assigned a portion of the overall alpha level (0.05) and represented as a node within a predefined graph. Upon rejection of a hypothesis, its allocated alpha may be redistributed to other hypotheses according to predefined transition weights. This approach maintains strong control of the Type I error rate while preserving statistical power for clinically important comparisons.
 
----
 
 ## 4. Analysis Sets {#analysis-sets}
 
@@ -184,7 +177,6 @@ The Full Analysis Set (FAS) includes all randomized subjects who were exposed to
 
 Efficacy analyses will be conducted according to the intention-to-treat (ITT) principle, with subjects analyzed as randomized regardless of protocol deviations or treatment adherence, consistent with ICH E9 Section 5.2.1. Unless otherwise specified, all efficacy endpoints will be analyzed using the ITT population.
 
----
 
 ### 4.2 Safety Analysis Sets {#safety-analysis-sets}
 
@@ -192,15 +184,11 @@ The Safety Analysis Set includes all randomized subjects who received at least o
 
 An additional per-protocol (PP) safety analysis will be conducted to address clinical concerns regarding drug safety. In this analysis, subjects will be analyzed according to the treatment actually received (“as-treated”). Subjects who received at least one dose of baricitinib will be included in the baricitinib group, while all other subjects will be analyzed as placebo. This approach minimizes the risk of attributing baricitinib-related adverse events to placebo, while acknowledging potential dilution of AE rates.
 
----
-
 ## 5. Handling of Missing Values {#handling-of-missing-values}
 
 Missing data for categorical endpoints will be addressed using multiple imputation with 100 imputed datasets. The imputation model will include treatment group, baseline covariates, and available post-baseline observations.
 
 For continuous outcomes, sensitivity analyses will be conducted using both multiple imputation and a modified last-observation-carried-forward (mLOCF) approach to assess the robustness of results under different missing data assumptions.
-
----
 
 ## 6. Statistical Methodology and Analyses {#statistical-methodology-and-analyses}
 
@@ -217,27 +205,19 @@ Continuous efficacy endpoints and continuous safety parameters (e.g., hemoglobin
 **Fisher’s Exact Test:**  
 Categorical safety outcomes, including adverse events and treatment discontinuations, will be compared between treatment groups using Fisher’s exact test.
 
----
-
 ### 6.2 Statistical Analysis {#statistical-analysis}
 
 Efficacy analyses will be conducted using the ITT population. Safety analyses will include all randomized subjects who received at least one dose of study treatment, regardless of study completion status.
 
 To control the two-sided 5% familywise error rate, multiple comparisons across primary and secondary endpoints will be adjusted using graphical testing procedures. Direct comparisons between the two baricitinib dose groups will not be performed.
 
----
-
 #### 6.2.1 Primary Analysis {#primary-analysis}
 
 The primary analysis will assess the superiority of each baricitinib dose compared with placebo for the primary endpoint using logistic regression, adjusting for treatment group, geographic region, duration of current alopecia areata episode (< 4 years vs. ≥ 4 years), and baseline SALT score.
 
----
-
 #### 6.2.2 Secondary Analysis {#secondary-analysis}
 
 Categorical secondary endpoints will be analyzed using logistic regression models with the same covariates as the primary analysis. Continuous secondary endpoints will be analyzed using ANCOVA models. The order of secondary hypothesis testing will follow the predefined graphical testing scheme.
-
----
 
 #### 6.2.3 Safety Analysis {#safety-analysis}
 
