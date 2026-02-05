@@ -11,8 +11,6 @@ I am currently pursuing a Master of Science in Biostatistics (Theory and Methods
 
 My background combines rigorous statistical theory with hands-on experience working on large, real-world datasets, as well as formal coursework and practical training in biology and laboratory research. Although my primary degree is not in biology, I completed extensive undergraduate coursework in molecular biology, physiology, and molecular genetics, alongside corresponding biology and organic chemistry laboratory training, and have worked directly in wet-lab research environments.
 
-⸻
-
 Industry & Applied Experience
 
 I currently work as a Research Assistant at Columbia University / NYSPI, where I analyze large-scale neuroimaging and clinical datasets related to Alzheimer’s disease. My role emphasizes applied statistical analysis and reproducible workflows, including:
@@ -25,7 +23,6 @@ Previously, I worked as a Laboratory Assistant at the Food Science and Processin
 
 In addition to academic research, I have gained industry exposure through healthcare consulting (IQVIA) and data-focused roles, working with structured, real-world datasets under practical constraints such as data quality, timelines, and stakeholder needs.
 
-⸻
 
 Technical Skills & Certification
 
@@ -39,8 +36,6 @@ Key strengths include:
  • Biological data interpretation
  • Laboratory data collection and validation
  • Reproducible analysis and clear reporting
-
-⸻
 
 Career Interests
 
