@@ -4,7 +4,7 @@ title: About Me
 Columbia University Biostat Grat
 ---
 
-About Me
+About Me \\
 I am a Biostatistics graduate student with strong applied training in statistical modeling, real-world data analysis, and programming, along with a solid foundation in biological sciences. I am seeking roles across biostatistics, data analysis, biology field research, and laboratory technician positions that value both quantitative and experimental skills.
 
 I am currently pursuing a Master of Science in Biostatistics (Theory and Methods Track) at the Columbia University Mailman School of Public Health, with an expected graduation in May 2026.
