@@ -12,49 +12,6 @@ author: Yixin Zheng
 Columbia University Mailman School of Public Health
 Instructor: Naitee Ting
 
-### Table of Contents {#table-of-contents}
-
-- [1. Introduction](#introduction)
-  - [1.1 Background](#background)
-  - [1.2 Study Objective](#study-objective)
-    - [Primary Objective](#primary-objective)
-    - [Secondary Objectives](#secondary-objectives)
-    - [Safety Objective](#safety-objective)
-  - [1.3 Eligibility Criteria](#eligibility-criteria)
-    - [Inclusion Criteria](#inclusion-criteria)
-    - [Exclusion Criteria](#exclusion-criteria)
-  - [1.4 Study Design](#study-design)
-    - [1.4.1 Sample Size Estimation](#sample-size-estimation)
-
-- [2. Endpoints and Covariates](#endpoints-and-covariates)
-  - [2.1 Efficacy Endpoints](#efficacy-endpoints)
-  - [2.2 Safety Endpoints](#safety-endpoints)
-  - [2.3 Covariates](#covariates)
-
-- [3. Hypothesis and Decision Rules](#hypothesis-and-decision-rules)
-  - [3.1 Statistical Hypothesis](#statistical-hypothesis)
-  - [3.2 Statistical Decision Rules](#statistical-decision-rules)
-
-- [4. Analysis Sets](#analysis-sets)
-  - [4.1 Full Analysis Sets](#full-analysis-sets)
-  - [4.2 Safety Analysis Sets](#safety-analysis-sets)
-
-- [5. Handling of Missing Values](#handling-of-missing-values)
-
-- [6. Statistical Methodology and Analyses](#statistical-methodology-and-analyses)
-  - [6.1 Statistical Methods](#statistical-methods)
-  - [6.2 Statistical Analysis](#statistical-analysis)
-    - [6.2.1 Primary Analysis](#primary-analysis)
-    - [6.2.2 Secondary Analysis](#secondary-analysis)
-    - [6.2.3 Safety Analysis](#safety-analysis)
-
-- [7. References](#references)
-
-- [8. Appendices](#appendices)
-  - [Appendix A: Team Member Contribution](#appendices-a-team-member-contribution)
-
-
-
 ## 1. Introduction {#introduction}
 
 ### 1.1 Background {#background}
