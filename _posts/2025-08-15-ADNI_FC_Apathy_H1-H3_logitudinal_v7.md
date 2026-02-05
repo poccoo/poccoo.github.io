@@ -152,58 +152,58 @@ covars_no_dx <- c(
 
 ### Core Identifiers
 
-- **SubID**: Scan ID for each imaging session, includes patient ID and scan date (YYYYMMDD).  
+- `SubID`: Scan ID for each imaging session, includes patient ID and scan date (YYYYMMDD).  
   Multiple SubIDs may exist for the same participant across visit dates.
 
-- **PTID**: Imaging patient ID (used as random-effect grouping variable)
+- `PTID`: Imaging patient ID (used as random-effect grouping variable)
 
-- **RID**: Research ID
+- `RID`: Research ID
 
 ---
 
 ### Demographics and Clinical Covariates
 
-- **Age**: Age at scan (years)
+- `Age`: Age at scan (years)
 
-- **Age_z**: Standardized age at scan (z-score)
+- `Age_z`: Standardized age at scan (z-score)
 
-- **PTGENDER**: Sex (0 = Male, 1 = Female); used as sex covariate per Kim et al.
+- `PTGENDER`: Sex (0 = Male, 1 = Female); used as sex covariate per Kim et al.
 
-- **PTEDUCAT**: Years of education
+- `PTEDUCAT`: Years of education
 
-- **PTEDUCAT_z**: Standardized years of education (z-score)
+- `PTEDUCAT_z`: Standardized years of education (z-score)
 
-- **DX.new**: Clinical diagnosis (CN, MCI, Dementia); corresponds to *Cognitive Status* per Kim et al.
+- `DX.new`: Clinical diagnosis (CN, MCI, Dementia); corresponds to *Cognitive Status* per Kim et al.
 
-- **HMHYPERT**: History of hypertension (0 = No, 1 = Yes)
+- `HMHYPERT`: History of hypertension (0 = No, 1 = Yes)
 
-- **sedatives_hypnotics_use**: Sedatives/hypnotics use  
+- `sedatives_hypnotics_use`: Sedatives/hypnotics use  
   (binary; 0 = FALSE, 1 = TRUE); corresponds to *Sleep medication use* per Kim et al.
 
 ---
 
 ### Amyloid Measures
 
-- **SUMMARYSUVR_WHOLECEREBNORM**: Amyloid burden (continuous)
+- `SUMMARYSUVR_WHOLECEREBNORM`: Amyloid burden (continuous)
 
-- **Amyloid_z**: Standardized amyloid burden (z-score)
+- `Amyloid_z`: Standardized amyloid burden (z-score)
 
-- **SUMMARYSUVR_WHOLECEREBNORM_1.11CUTOFF**: Amyloid positivity  
+- `SUMMARYSUVR_WHOLECEREBNORM_1.11CUTOFF`: Amyloid positivity  
   (binary; 0 = negative, 1 = positive); cutoff = 1.11
 
 ---
 
 ### Neuropsychiatric Outcomes
 
-- **NPITOTAL**: Total NPI score; corresponds to *Total NPI/NPIQ score* per Kim et al.
+- `NPITOTAL`: Total NPI score; corresponds to *Total NPI/NPIQ score* per Kim et al.
 
-- **NPITOTAL_z**: Standardized total NPI score (z-score)
+- `NPITOTAL_z`: Standardized total NPI score (z-score)
 
-- **NPIGTOT**: Apathy subscore (outcome in H1 and H2)
+- `NPIGTOT`: Apathy subscore (outcome in H1 and H2)
 
-- **NPIGTOT_z**: Standardized apathy score (z-score)
+- `NPIGTOT_z`: Standardized apathy score (z-score)
 
-- **NPIG**: Binary apathy indicator  
+- `NPIG`: Binary apathy indicator  
   (1 = apathy present if NPIGTOT > 0, otherwise 0)
 
 ---
