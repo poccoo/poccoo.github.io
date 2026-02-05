@@ -8,78 +8,50 @@ author: Yixin Zheng
 ---
 
 
-
-**Statistical Analysis Plan**  
-
-
 Columbia University Mailman School of Public Health
 Instructor: Naitee Ting
 
-TABLE OF CONTENTS {#table-of-contents}
+### Table of Contents {#table-of-contents}
 
-[TABLE OF CONTENTS	2](#table-of-contents)
+- [1. Introduction](#introduction)
+  - [1.1 Background](#background)
+  - [1.2 Study Objective](#study-objective)
+    - [Primary Objective](#primary-objective)
+    - [Secondary Objectives](#secondary-objectives)
+    - [Safety Objective](#safety-objective)
+  - [1.3 Eligibility Criteria](#eligibility-criteria)
+    - [Inclusion Criteria](#inclusion-criteria)
+    - [Exclusion Criteria](#exclusion-criteria)
+  - [1.4 Study Design](#study-design)
+    - [1.4.1 Sample Size Estimation](#sample-size-estimation)
 
-[1\. INTRODUCTION	3](#introduction)
+- [2. Endpoints and Covariates](#endpoints-and-covariates)
+  - [2.1 Efficacy Endpoints](#efficacy-endpoints)
+  - [2.2 Safety Endpoints](#safety-endpoints)
+  - [2.3 Covariates](#covariates)
 
-[1.1. Background	3](#background)
+- [3. Hypothesis and Decision Rules](#hypothesis-and-decision-rules)
+  - [3.1 Statistical Hypothesis](#statistical-hypothesis)
+  - [3.2 Statistical Decision Rules](#statistical-decision-rules)
 
-[1.2. Study Objective	3](#study-objective)
+- [4. Analysis Sets](#analysis-sets)
+  - [4.1 Full Analysis Sets](#full-analysis-sets)
+  - [4.2 Safety Analysis Sets](#safety-analysis-sets)
 
-[Primary Objective	3](#primary-objective)
+- [5. Handling of Missing Values](#handling-of-missing-values)
 
-[Secondary Objectives	3](#secondary-objectives)
+- [6. Statistical Methodology and Analyses](#statistical-methodology-and-analyses)
+  - [6.1 Statistical Methods](#statistical-methods)
+  - [6.2 Statistical Analysis](#statistical-analysis)
+    - [6.2.1 Primary Analysis](#primary-analysis)
+    - [6.2.2 Secondary Analysis](#secondary-analysis)
+    - [6.2.3 Safety Analysis](#safety-analysis)
 
-[Safety Objective	3](#safety-objective)
+- [7. References](#references)
 
-[1.3. Eligibility Criteria	3](#eligibility-criteria)
+- [8. Appendices](#appendices)
+  - [Appendix A: Team Member Contribution](#appendices-a-team-member-contribution)
 
-[Inclusion Criteria	3](#inclusion-criteria)
-
-[Exclusion Criteria	4](#exclusion-criteria)
-
-[1.4. Study Design	5](#study-design)
-
-[1.4.1. Sample Size Estimation	5](#sample-size-estimation)
-
-[**2\. ENDPOINTS AND COVARIATES	6**](#endpoints-and-covariates)
-
-[2.1. Efficacy Endpoints	6](#efficacy-endpoints)
-
-[2.2. Safety Endpoints	7](#safety-endpoints)
-
-[2.3. Covariates	7](#covariates)
-
-[**3\. HYPOTHESIS AND DECISION RULES	7**](#hypothesis-and-decision-rules)
-
-[3.1. Statistical Hypothesis	7](#statistical-hypothesis)
-
-[3.2. Statistical Decision Rules	8](#statistical-decision-rules)
-
-[**4\. ANALYSIS SETS	8**](#analysis-sets)
-
-[4.1. Full Analysis Sets	8](#full-analysis-sets)
-
-[4.2. Safety Analysis Sets	8](#safety-analysis-sets)
-
-[**5\. HANDLING OF MISSING VALUES	8**](#handling-of-missing-values)
-
-[**6\. STATISTICAL METHODOLOGY AND ANALYSES	8**](#statistical-methodology-and-analyses)
-
-[6.1. Statistical Methods	8](#statistical-methods)
-
-[6.2. Statistical Analysis	9](#statistical-analysis)
-
-[6.2.1. Primary Analysis	9](#primary-analysis)
-
-[6.2.2. Secondary Analysis	9](#secondary-analysis)
-
-[6.2.3. Safety Analysis	10](#safety-analysis)
-
-[**7\. REFERENCES	10**](#references)
-
-[**8\. APPENDICES	11**](#appendices)
-
-[APPENDICES A: Team Member Contribution	11](#appendices-a:-team-member-contribution)
 
 
 # 1.INTRODUCTION {#introduction}
