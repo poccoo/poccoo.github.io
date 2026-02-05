@@ -54,141 +54,118 @@ Instructor: Naitee Ting
 
 
 
-# 1.INTRODUCTION {#introduction}
+## 1. Introduction {#introduction}
 
-   1. ## **Background** {background}
+### 1.1 Background {#background}
 
-Alopecia areata (AA) is a chronic, immune-mediated disorder characterized by non-scarring hair loss, most commonly affecting the scalp(Lepe & Zito, 2024). With an estimated prevalence of approximately 0.27% in China alone, AA affects millions people globally and is associated with considerable psychosocial burden, particularly among adolescents and young adults with severe disease (Wang et al., 2023).
+Alopecia areata (AA) is a chronic, immune-mediated disorder characterized by non-scarring hair loss, most commonly affecting the scalp (Lepe & Zito, 2024). With an estimated prevalence of approximately 0.27% in China alone, AA affects millions of people globally and is associated with considerable psychosocial burden, particularly among adolescents and young adults with severe disease (Wang et al., 2023).
 
-The pathogenesis of AA involves autoimmune targeting of hair follicles, with cytokine signaling, through the Janus kinase (JAK) pathways JAK1 and JAK2 particularly. Here, JAK pathways play a central role in disease progression (Yamaoka et al., 2004).
+The pathogenesis of AA involves autoimmune targeting of hair follicles, with cytokine signaling through the Janus kinase (JAK) pathways—particularly JAK1 and JAK2—playing a central role in disease progression (Yamaoka et al., 2004).
 
-Baricitinib is an oral selective JAK1/JAK2 inhibitor. It has demonstrated efficacy in 2 large, randomized Phase 3 trials—BRAVE-AA1 and BRAVE-AA2—by significantly increasing the proportion of patients achieving meaningful scalp hair regrowth (SALT ≤20) after 36 weeks of treatment (King et al., 2022).
+Baricitinib is an oral selective JAK1/JAK2 inhibitor. It has demonstrated efficacy in two large, randomized Phase 3 trials—BRAVE-AA1 and BRAVE-AA2—by significantly increasing the proportion of patients achieving meaningful scalp hair regrowth (SALT ≤ 20) after 36 weeks of treatment (King et al., 2022).
 
-Since its approval for AA treatment in several countries including China, baricitinib has represented a shift in the treatment paradigm, especially for patients who previously relied on systemic corticosteroids, which cause long-term safety concerns (Wang et al., 2023). The emergence of JAK inhibitors offers a great alternative due to their targeted mechanism, improved tolerability, and increasing physician preference.
+Since its approval for AA treatment in several countries, including China, baricitinib has represented a shift in the treatment paradigm, particularly for patients who previously relied on systemic corticosteroids associated with long-term safety concerns (Wang et al., 2023). The emergence of JAK inhibitors offers a promising alternative due to their targeted mechanism of action, improved tolerability, and increasing physician preference.
 
-2. ## **Study Objective**  {#study-objective}
+---
 
-### ***Primary Objective*** {#primary-objective}
+### 1.2 Study Objective {#study-objective}
 
-To investigate the efficacy of once-daily oral baricitinib (4 mg and 2 mg) compared to placebo in achieving clinically meaningful scalp hair regrowth in adults with severe alopecia areata after 36 weeks.
+#### Primary Objective {#primary-objective}
 
-### ***Secondary Objectives*** {#secondary-objectives}
+To investigate the efficacy of once-daily oral baricitinib (4 mg and 2 mg) compared with placebo in achieving clinically meaningful scalp hair regrowth in adults with severe alopecia areata after 36 weeks of treatment.
 
-To compare baricitinib and placebo regarding the effect on:
+#### Secondary Objectives {#secondary-objectives}
 
-* Patient-reported improvement in scalp hair appearance  
-* Clinician-rated regrowth of eyebrow and eyelash hair  
-* Changes in scalp hair loss severity, measured by SALT score percentage change from baseline
+To compare baricitinib and placebo with respect to:
 
+- Patient-reported improvement in scalp hair appearance  
+- Clinician-rated regrowth of eyebrow and eyelash hair  
+- Changes in scalp hair loss severity, measured by percentage change from baseline in SALT score  
 
-### ***Safety Objective*** {#safety-objective}
+#### Safety Objective {#safety-objective}
 
-To evaluate the safety and tolerability of baricitinib by comparing the incidence and severity of adverse events, discontinuations, and relevant lab/vital sign changes over 36 weeks of treatment
+To evaluate the safety and tolerability of baricitinib by comparing the incidence and severity of adverse events, treatment discontinuations, and clinically relevant laboratory and vital sign changes over 36 weeks of treatment.
 
-3. ## **Eligibility Criteria** {#eligibility-criteria}
+---
 
-   ### ***Inclusion Criteria*** {#inclusion-criteria}
+### 1.3 Eligibility Criteria {#eligibility-criteria}
 
-Participants must be adults: males aged 18 to 60 years and females up to 70 years. Eligible individuals must have severe or very severe alopecia areata, defined as:
+#### Inclusion Criteria {#inclusion-criteria}
 
-* A current episode lasting more than 6 months,  
-* ≥50% scalp hair loss, measured by the SALT score at both screening visits,  
-* No significant spontaneous improvement (defined as ≤10-point SALT score reduction) in the past 6 months.
+Participants must be adults: males aged 18–60 years and females aged up to 70 years. Eligible individuals must have severe or very severe alopecia areata, defined as:
 
-The current episode must be less than 8 years in duration. However, individuals with disease lasting ≥8 years may still be eligible if they have shown episodes of regrowth, either spontaneously or with treatment, within that period.
+- A current disease episode lasting more than 6 months  
+- ≥ 50% scalp hair loss, measured by the SALT score at both screening visits  
+- No significant spontaneous improvement (≤ 10-point reduction in SALT score) within the previous 6 months  
 
-Participants must agree not to use any treatments for alopecia areata during the study period. Prohibited treatments include: 
+The current episode must be less than 8 years in duration. Individuals with disease duration ≥ 8 years may still be eligible if they have demonstrated episodes of hair regrowth, either spontaneously or with treatment, during that period.
 
-* Systemic therapies (e.g., corticosteroids, methotrexate, cyclosporine, JAK inhibitors, apremilast)  
-* Biologics (e.g., monoclonal antibodies)  
-* Intralesional corticosteroids   
-* Topical irritants or immunotherapies (e.g., DPCP)   
-* Phototherapy (including laser)   
-* Platelet-rich plasma injections   
-* Cryotherapy  
-* statins used for alopecia
+Participants must agree not to use treatments for alopecia areata during the study period. Prohibited treatments include:
 
+- Systemic therapies (e.g., corticosteroids, methotrexate, cyclosporine, JAK inhibitors, apremilast)  
+- Biologic agents (e.g., monoclonal antibodies)  
+- Intralesional corticosteroids  
+- Topical irritants or immunotherapies (e.g., DPCP)  
+- Phototherapy (including laser therapy)  
+- Platelet-rich plasma injections  
+- Cryotherapy  
+- Statins used specifically for alopecia areata  
 
-Exceptions include:
+Permitted exceptions include:
 
-* Bimatoprost for eyelashes, if on a stable dose for ≥8 weeks prior to randomization,  
+- Bimatoprost for eyelashes, if administered at a stable dose for ≥ 8 weeks prior to randomization  
+- Finasteride or minoxidil (oral or topical), if administered at a stable dose for ≥ 12 months prior to baseline and expected to continue through Week 36  
 
-* Finasteride or minoxidil (oral or topical), if on a stable dose for ≥12 months and expected to continue through Week 36\.
-
-  ### ***Exclusion Criteria*** {#exclusion-criteria}
+#### Exclusion Criteria {#exclusion-criteria}
 
 Participants will be excluded if they have:
 
-* Diffuse-type alopecia areata (with generalized shedding)  
-* Other hair loss conditions such as androgenetic alopecia, telogen effluvium, trichotillomania, chemotherapy-induced alopecia, or scalp conditions (e.g., psoriasis, tinea capitis) that could interfere with assessment.
+- Diffuse-type alopecia areata with generalized shedding  
+- Other forms of hair loss (e.g., androgenetic alopecia, telogen effluvium, trichotillomania, chemotherapy-induced alopecia)  
+- Scalp conditions (e.g., psoriasis, tinea capitis) that may interfere with assessment  
 
+Additionally, individuals with unstable medical conditions requiring frequent hospitalization or ongoing systemic immunosuppressive therapy may be excluded at the investigator’s discretion.
 
-Additionally, individuals with unstable medical conditions requiring frequent hospitalization or ongoing systemic immunosuppressants may be excluded at the investigator’s discretion.
+Participants will also be excluded if they received any of the following treatments within the specified time windows prior to randomization:
 
-Participants are also excluded if they received the following treatments within the specified time windows before randomization:
+- Topical corticosteroids (scalp or eyebrows): within 1 week  
+- Systemic or intralesional corticosteroids: within 8 weeks  
+- JAK inhibitors: oral within 8 weeks; topical within 4 weeks  
+- Topical immunotherapies: within 4 weeks  
+- Monoclonal antibodies: within 5 half-lives  
+- Platelet-rich plasma, phototherapy, cryotherapy, or statins for AA: within 4–8 weeks  
+- Finasteride or minoxidil: unless stable for ≥ 12 months  
+- Other immunosuppressive or targeted therapies: within 4–8 weeks, depending on the agent  
 
-* Topical corticosteroids (scalp or eyebrows): within 1 week  
+---
 
-* Systemic or intralesional corticosteroids: within 8 weeks  
+### 1.4 Study Design {#study-design}
 
-* JAK inhibitors (oral or topical): oral within 8 weeks, topical within 4 weeks  
-
-* Topical immunotherapies: within 4 weeks  
-
-* Monoclonal antibodies: within 5 half-lives  
-
-* Platelet-rich plasma, phototherapy, cryotherapy, or statins for AA: within 4–8 weeks  
-
-* Finasteride/minoxidil: unless stable for ≥12 months  
-
-* Other immunosuppressants or targeted therapies: within 4–8 weeks, depending on the agent.
-
-  4. ## **Study Design** {#study-design}
-
-This plan outlines the proposed analyses for a randomized, double-blind, placebo-controlled, parallel-group Phase 3 trial. Patients are to be randomized in a 3:2:2 ratio to receive either 4 mg baricitinib, 2 mg baricitinib, or placebo once daily for 36 weeks. 
+This analysis plan describes a randomized, double-blind, placebo-controlled, parallel-group Phase 3 clinical trial. Participants will be randomized in a 3:2:2 ratio to receive once-daily oral baricitinib 4 mg, baricitinib 2 mg, or placebo for 36 weeks.
 
 Stratified block randomization will be implemented using an Interactive Web Response System (IWRS) (King et al., 2022). Randomization will be stratified by:
 
-* Geographic region (North America vs. Rest of World), and  
-* Duration of current alopecia areata episode at baseline:  
-  * \< 4 years (with SALT score 50–94%), vs.  
-  * ≥ 4 years (or very severe AA with SALT score 95–100%).
+- Geographic region (North America vs. Rest of World)  
+- Duration of the current alopecia areata episode at baseline:  
+  - < 4 years (SALT score 50–94%)  
+  - ≥ 4 years or very severe AA (SALT score 95–100%)  
 
-Participants and study personnel will remain blinded to treatment allocation throughout the study. Eligibility criteria will include patients aged 18–70 years with a clinical diagnosis of alopecia areata, a baseline SALT score of ≥50, and no prior use of JAK inhibitors. Study medication will be administered daily, and compliance will be monitored through pill counts and patient self-report logs. All statistical analyses will be performed after the study is completed and the database has been locked to preserve the integrity of the blinded trial.
+Participants, investigators, and study personnel will remain blinded to treatment allocation throughout the study. Compliance will be assessed via pill counts and patient self-report logs. All statistical analyses will be conducted following database lock to preserve trial integrity.
 
-1. ### **Sample Size Estimation** {#sample-size-estimation}
+---
 
-According to the original JAHO clinical study protocol, \~1035 patients were screened to enroll \~725 patients across Stage 1 and Stage 2 (King et al., 2022). Stage 1 was a dose-finding phase that has up to 300 patients randomized: the first \~100 in a 1:1:1:1 ratio (placebo, 1 mg, 2 mg, 4 mg), and the next \~200 in a 2:2:3 ratio (2 mg, 4 mg, placebo). Stage 2 began after the interim analysis, with \~425 patients randomized in a 2:2:3 ratio to baricitinib 2 mg, 4 mg, or placebo (King et al., 2022).  So in total, approximately 625 patients (Stage 2 \+ non–1 mg arms from Stage 1\) are included in the primary efficacy analysis.
+#### 1.4.1 Sample Size Estimation {#sample-size-estimation}
 
-Both BRAVE-AA1 and BRAVE-AA2 trials were planned to achieve 90% power to test the superiority of each baricitinib dose compared to placebo for the primary endpoint, the proportion of patients achieving a SALT score ≤ 20 at Week 36, under the assumptions of response rates of 30% for 4 mg, 20% for 2 mg, and 5% for placebo.
+According to the original JAHO clinical study protocol, approximately 1,035 patients were screened to enroll about 725 participants across Stage 1 and Stage 2 (King et al., 2022). Stage 1 was a dose-finding phase enrolling up to 300 patients, while Stage 2 enrolled approximately 425 patients following interim analysis.
 
-The required per-group sample size was calculated using the standard formula for comparing two proportions via a Chi-square test without continuity correction:
+Both BRAVE-AA1 and BRAVE-AA2 trials were designed to achieve 90% power to test the superiority of each baricitinib dose versus placebo for the primary endpoint: the proportion of patients achieving a SALT score ≤ 20 at Week 36. Assumed response rates were 30% for 4 mg, 20% for 2 mg, and 5% for placebo.
 
-n \= (Z1-/2+ Z1-)2 \[p1(1-p1) \+ p0(1-p0)\](p1-p0)2
+Sample size calculations were based on a chi-square test for comparison of two proportions without continuity correction:
 
-Where:
+n = (Z<sub>1−α/2</sub> + Z<sub>1−β</sub>)² × [p₁(1−p₁) + p₀(1−p₀)] / (p₁ − p₀)²
 
-* Placebo response rate (p0=0.05)  
-* Expected response rate for baricitinib 4 mg (p1)=0.30   
-* Expected response rate for baricitinib 2 mg (p1)=0.20  
-* Standard normal value for \=0.05:Z1-/2=1.96   
-* Standard normal value for \=0.10:Z1-=1.28 
+To account for attrition, noncompliance, and missing data, a 25% inflation factor was applied. Final sample sizes followed the published trial data for consistency: 625 participants for BRAVE-AA1 and 476 participants for BRAVE-AA2 (King et al., 2022).
 
-Using p1=0.30 for the 4 mg vs. placebo comparison:  
-n \= (1.96+ 1.28)2\[0.21+0.0475\](0.25)2= 10.5  0.25750.0625  43
-
-To maintain the 2:2:3 randomization ratio (2 mg : 4 mg : placebo), the total sample size per comparison set becomes:  
-43  72 150 patients
-
-Since the trial is designed to test two independent comparisons (2 mg vs. placebo and 4 mg vs. placebo), the total required sample size is:  
-150 2  \= 300  patients
-
-To account for attrition, noncompliance, and missing data (especially in the context of the COVID-19 pandemic), a 25% inflation factor is applied:  
-300 0.75 \=400  patients
-
-Adding \~200 eligible patients from Stage 1, the total planned sample size for BRAVE-AA1 becomes approximately 600\. BRAVE-AA2 followed the same assumptions and power requirements.
-
-Sample size calculations were conducted using EAST v6.4 in protocol guideline, so minor deviations occur when performing manual calculations; therefore, for consistency and transparency, we follow the final reported sample sizes in the published paper: 625 for BRAVE-AA1 and 476 for BRAVE-AA2 (King et al., 2022).
 
 2. # **ENDPOINTS AND COVARIATES**  {#endpoints-and-covariates}
 
