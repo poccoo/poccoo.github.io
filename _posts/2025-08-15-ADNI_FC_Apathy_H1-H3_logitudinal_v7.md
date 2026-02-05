@@ -9,14 +9,6 @@ mathjax: true
 author: Yixin Zheng
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
-```{r session info, include=TRUE, collapse=TRUE}
-sessionInfo()
-```
-
 This analysis follows the approach of Kim et al.(2023), applying similar
 modeling to ADNI resting-state fMRI data.
 
@@ -28,70 +20,59 @@ apathy (mediation) H2. amyloid -\> FC -\> apathy (interaction —
 specificity of FC) H3. amyloid -\> FC -\> other NPS (common vs unique FC
 effects) H4. amyloid -\> FC -\> cognition -\> apathy
 
-```{r library, include=FALSE}
-library(dplyr)
-library(tidyr)
-library(ggplot2)
-library(broom)
-library(lme4)
-library(lmerTest)
-library(mediation)
-library(arsenal)
-library(emmeans)
-library(performance)
-library(arm)
-library(knitr)
-library(sjPlot)
-```
 
-# Data Preprocessing
+## Data Preprocessing and Variable Definitions
 
-```{r load, collapse=TRUE}
-# load
-dat      <- read.csv("../Data/ADNI_dat.longitudinal_full.n1513_2025_06_23.csv")
-baseline <- read.csv("../Data/ADNI_dat.baseline_only.n745_2025_06_23.csv")
+### Preprocessing Functions
 
-# variable sets
-fc_raw     <- c("SN","DMN","FPN")  # raw FC variables
-nps_vars   <- c("NPIATOT","NPIBTOT","NPICTOT","NPIDTOT","NPIETOT",
-                "NPIFTOT","NPIHTOT","NPIITOT","NPIJTOT","NPIKTOT","NPILTOT")
-nps_vars_z <- paste0(nps_vars, "_z")
-
-# helpers
+```r
 to_num <- function(x) suppressWarnings(as.numeric(x))
-z <- function(x) as.numeric(scale(x))  # returns numeric, not matrix
+
+z <- function(x) as.numeric(scale(x))  # return numeric, not matrix
 
 # robust binary guard: maps common encodings to 0/1
 as_bin01 <- function(v, cutoff = NULL) {
-  # if cutoff provided, use continuous source to create binary
-  if (!is.null(cutoff)) return(ifelse(to_num(v) >= cutoff, 1L, 0L))
+  # if cutoff provided, derive binary from continuous source
+  if (!is.null(cutoff)) {
+    return(ifelse(to_num(v) >= cutoff, 1L, 0L))
+  }
+
   # otherwise coerce from existing codes/strings
   out <- tolower(as.character(v))
-  out[out %in% c("1","yes","true","pos","positive")] <- "1"
-  out[out %in% c("0","no","false","neg","negative")] <- "0"
+  out[out %in% c("1", "yes", "true", "pos", "positive")] <- "1"
+  out[out %in% c("0", "no", "false", "neg", "negative")] <- "0"
   out <- as.integer(out)
+
   # leave NA if still not 0/1
-  out[!(out %in% c(0L,1L))] <- NA_integer_
+  out[!(out %in% c(0L, 1L))] <- NA_integer_
   out
 }
 
 preprocess_fn <- function(df) {
-  # ensure PTID available as factor for random effects
-  if (!"PTID" %in% names(df)) stop("PTID is required in the dataset.")
+  # ensure PTID exists (used for random effects)
+  if (!"PTID" %in% names(df)) {
+    stop("PTID is required in the dataset.")
+  }
   df$PTID <- as.factor(df$PTID)
 
   # FC & NPS numerics
-  for (v in fc_raw)    if (v %in% names(df)) df[[v]] <- to_num(df[[v]])
-  for (v in nps_vars)  if (v %in% names(df)) df[[v]] <- to_num(df[[v]])
+  for (v in fc_raw)   if (v %in% names(df)) df[[v]] <- to_num(df[[v]])
+  for (v in nps_vars) if (v %in% names(df)) df[[v]] <- to_num(df[[v]])
 
-  # core continuous numerics
-  num_vars <- c("Age","PTEDUCAT","NPITOTAL","NPIGTOT","SUMMARYSUVR_WHOLECEREBNORM")
+  # core continuous variables
+  num_vars <- c(
+    "Age",
+    "PTEDUCAT",
+    "NPITOTAL",
+    "NPIGTOT",
+    "SUMMARYSUVR_WHOLECEREBNORM"
+  )
   for (v in num_vars) if (v %in% names(df)) df[[v]] <- to_num(df[[v]])
 
-  # outcomes
+  # binary apathy outcome
   df$NPIG <- ifelse(!is.na(df$NPIGTOT) & df$NPIGTOT > 0, 1L, 0L)
 
-  # amyloid binary (prefer provided cutoff var if valid; else derive from 1.11)
+  # amyloid binary (prefer provided cutoff variable if present)
   if ("SUMMARYSUVR_WHOLECEREBNORM_1.11CUTOFF" %in% names(df)) {
     bin_raw <- as_bin01(df$SUMMARYSUVR_WHOLECEREBNORM_1.11CUTOFF)
   } else {
@@ -99,13 +80,20 @@ preprocess_fn <- function(df) {
   }
   df$SUMMARYSUVR_WHOLECEREBNORM_1.11CUTOFF <- bin_raw
 
-  # categorical covariates as factors (set explicit order later)
-  if ("HMHYPERT" %in% names(df))               df$HMHYPERT <- factor(as_bin01(df$HMHYPERT), levels = c(0,1))
-  if ("sedatives_hypnotics_use" %in% names(df)) df$sedatives_hypnotics_use <- factor(as_bin01(df$sedatives_hypnotics_use), levels = c(0,1))
-  if ("PTGENDER" %in% names(df))               df$PTGENDER <- factor(df$PTGENDER)
-  if ("DX.new" %in% names(df))                 df$DX.new   <- factor(df$DX.new)
+  # categorical covariates
+  if ("HMHYPERT" %in% names(df)) {
+    df$HMHYPERT <- factor(as_bin01(df$HMHYPERT), levels = c(0, 1))
+  }
+  if ("sedatives_hypnotics_use" %in% names(df)) {
+    df$sedatives_hypnotics_use <- factor(
+      as_bin01(df$sedatives_hypnotics_use),
+      levels = c(0, 1)
+    )
+  }
+  if ("PTGENDER" %in% names(df)) df$PTGENDER <- factor(df$PTGENDER)
+  if ("DX.new" %in% names(df))   df$DX.new   <- factor(df$DX.new)
 
-  # z-scales for continuous predictors/outcomes
+  # z-score continuous variables
   if ("NPIGTOT" %in% names(df))  df$NPIGTOT_z  <- z(df$NPIGTOT)
   if ("Age" %in% names(df))      df$Age_z      <- z(df$Age)
   if ("PTEDUCAT" %in% names(df)) df$PTEDUCAT_z <- z(df$PTEDUCAT)
@@ -113,20 +101,24 @@ preprocess_fn <- function(df) {
   if ("SN" %in% names(df))       df$SN_z       <- z(df$SN)
   if ("DMN" %in% names(df))      df$DMN_z      <- z(df$DMN)
   if ("FPN" %in% names(df))      df$FPN_z      <- z(df$FPN)
-  if ("SUMMARYSUVR_WHOLECEREBNORM" %in% names(df))
+  if ("SUMMARYSUVR_WHOLECEREBNORM" %in% names(df)) {
     df$Amyloid_z <- z(df$SUMMARYSUVR_WHOLECEREBNORM)
+  }
 
-  # z-scores for all NPS domains (continuous; used in H3 longitudinal)
+  # z-scores for all NPS domains (H3 longitudinal analyses)
   for (i in seq_along(nps_vars)) {
-    v <- nps_vars[i]; vz <- nps_vars_z[i]
+    v  <- nps_vars[i]
+    vz <- nps_vars_z[i]
     if (v %in% names(df)) df[[vz]] <- z(df[[v]])
   }
 
-  # set factor reference levels for interpretability
-  if ("PTGENDER" %in% names(df) && any(levels(df$PTGENDER) == "0")) df$PTGENDER <- 
-    stats::relevel(df$PTGENDER, ref = "0")
-  if ("DX.new"   %in% names(df) && any(levels(df$DX.new)   == "CN")) df$DX.new   <- 
-    stats::relevel(df$DX.new, ref = "CN")
+  # reference levels for interpretability
+  if ("PTGENDER" %in% names(df) && "0" %in% levels(df$PTGENDER)) {
+    df$PTGENDER <- stats::relevel(df$PTGENDER, ref = "0")
+  }
+  if ("DX.new" %in% names(df) && "CN" %in% levels(df$DX.new)) {
+    df$DX.new <- stats::relevel(df$DX.new, ref = "CN")
+  }
 
   df
 }
@@ -135,139 +127,129 @@ preprocess_fn <- function(df) {
 dat      <- preprocess_fn(dat)
 baseline <- preprocess_fn(baseline)
 
-# modeling variable names 
-fc_vars  <- c("SN_z","DMN_z","FPN_z")                 # mediators
-x_bin    <- "SUMMARYSUVR_WHOLECEREBNORM_1.11CUTOFF"   # binary amyloid
-x_cont   <- "Amyloid_z"                               # continuous amyloid
-y_bin    <- "NPIG"                                    # binary apathy
-y_cont   <- "NPIGTOT_z"                               # z-scored continuous apathy
+# modeling variable definitions
+fc_vars <- c("SN_z", "DMN_z", "FPN_z")  # mediators
 
-# covariate sets (with & without DX.new)
-covars_with_dx <- c("Age_z","PTGENDER","PTEDUCAT_z","DX.new",
-                    "sedatives_hypnotics_use","NPITOTAL_z","HMHYPERT")
-covars_no_dx   <- c("Age_z","PTGENDER","PTEDUCAT_z",
-                    "sedatives_hypnotics_use","NPITOTAL_z","HMHYPERT")
+x_bin  <- "SUMMARYSUVR_WHOLECEREBNORM_1.11CUTOFF"  # binary amyloid
+x_cont <- "Amyloid_z"                              # continuous amyloid
 
+y_bin  <- "NPIG"        # binary apathy
+y_cont <- "NPIGTOT_z"   # continuous apathy
+
+# covariate sets
+covars_with_dx <- c(
+  "Age_z", "PTGENDER", "PTEDUCAT_z", "DX.new",
+  "sedatives_hypnotics_use", "NPITOTAL_z", "HMHYPERT"
+)
+
+covars_no_dx <- c(
+  "Age_z", "PTGENDER", "PTEDUCAT_z",
+  "sedatives_hypnotics_use", "NPITOTAL_z", "HMHYPERT"
+)
 ```
 
--   `SubID`: Scan ID for each imaging session, includes Patient ID and
-    scan date (YearMonthDay). You may have multiple SubIDs for the same
-    participant, corresponding to different visit dates.\
+## Variable Definitions
 
--   `PTID`: Imaging Patient ID\
+### Core Identifiers
 
--   `RID`: Research ID\
+- **SubID**: Scan ID for each imaging session, includes patient ID and scan date (YYYYMMDD).  
+  Multiple SubIDs may exist for the same participant across visit dates.
 
--   `Age`: Age at scan (years)\
+- **PTID**: Imaging patient ID (used as random-effect grouping variable)
 
--   `Age_z`: Standardized age at scan (z-score)\
+- **RID**: Research ID
 
--   `PTGENDER`: Sex (0 = Male, 1 = Female) Used directly as `Sex`
-    covariate per Kim et al.\
+---
 
--   `PTEDUCAT`: Years of education\
+### Demographics and Clinical Covariates
 
--   `PTEDUCAT_z`: Standardized years of education (z-score)\
+- **Age**: Age at scan (years)
 
--   `DX.new`: Clinical diagnosis (CN, MCI, Dementia) Matches
-    `Cognitive Statics` per Kim et al.\
+- **Age_z**: Standardized age at scan (z-score)
 
--   `HMHYPERT`: History of hypertension (0 = No, 1 = Yes)
+- **PTGENDER**: Sex (0 = Male, 1 = Female); used as sex covariate per Kim et al.
 
--   `sedatives_hypnotics_use`: Sedatives/hypnotics use (binary, 0 =
-    FALSE, 1 = TRUE) Matches `Sleep medication use` per Kim et al.\
+- **PTEDUCAT**: Years of education
 
--   `SUMMARYSUVR_WHOLECEREBNORM`: Amyloid burden (continuous)\
+- **PTEDUCAT_z**: Standardized years of education (z-score)
 
--   `Amyloid_z`: Standardized amyloid burden (z-score), used in all
-    longitudinal models
+- **DX.new**: Clinical diagnosis (CN, MCI, Dementia); corresponds to *Cognitive Status* per Kim et al.
 
--   `SUMMARYSUVR_WHOLECEREBNORM_1.11CUTOFF`: Amyloid positivity (binary;
-    0 = negative, 1 = positive). Threshold of 1.11 used to define
-    amyloid-positive status\
+- **HMHYPERT**: History of hypertension (0 = No, 1 = Yes)
 
--   `NPITOTAL`: Total NPI score. Matches `Total NPI/NPIQ score` per Kim
-    et al.\
+- **sedatives_hypnotics_use**: Sedatives/hypnotics use  
+  (binary; 0 = FALSE, 1 = TRUE); corresponds to *Sleep medication use* per Kim et al.
 
--   `NPITOTAL_z`: Standardized total NPI score (z-score)\
+---
 
--   `NPIGTOT`: Apathy subscore, outcome in H1 and H2\
+### Amyloid Measures
 
--   `NPIGTOT_z`: Standardized apathy score (z-score), used in
-    longitudinal models\
+- **SUMMARYSUVR_WHOLECEREBNORM**: Amyloid burden (continuous)
 
--   `NPIG`: Binary apathy outcome (1 = Apathy present if NPIGTOT \> 0,
-    else 0), derived from `NPIGTOT`\
+- **Amyloid_z**: Standardized amyloid burden (z-score)
 
--   Other NPS outcomes for H3 (continuous 0–12): outcomes in H3 Also
-    standardized to z-scores for use in longitudinal mixed models:
+- **SUMMARYSUVR_WHOLECEREBNORM_1.11CUTOFF**: Amyloid positivity  
+  (binary; 0 = negative, 1 = positive); cutoff = 1.11
 
-    -   `NPIATOT`: Delusions `NPIATOT_z`: Standardized delusions score
-    -   `NPIBTOT`: Hallucinations `NPIBTOT_z`: Standardized
-        hallucinations score
-    -   `NPICTOT`: Agitation `NPICTOT_z`: Standardized agitation score
-    -   `NPIDTOT`: Depression / Dysphoria `NPIDTOT_z`: Standardized
-        depression score
-    -   `NPIETOT`: Anxiety `NPIETOT_z`: Standardized anxiety score
-    -   `NPIFTOT`: Euphoria `NPIFTOT_z`: Standardized euphoria score
-    -   `NPIHTOT`: Disinhibition `NPIHTOT_z`: Standardized disinhibition
-        score
-    -   `NPIITOT`: Irritability / Lability `NPIITOT_z`: Standardized
-        irritability score
-    -   `NPIJTOT`: Aberrant motor activity `NPIJTOT_z`: Standardized
-        aberrant motor score
-    -   `NPIKTOT`: Night-time behavioral disturbances `NPIKTOT_z`:
-        Standardized night-time disturbances score
-    -   `NPILTOT`: Appetite and eating abnormalities `NPILTOT_z`:
-        Standardized appetite/eating score
+---
 
--   FC variables: Within-network functional connectivity measures\
+### Neuropsychiatric Outcomes
 
-    -   `SN`: Salience Network\
-        `SN_z`: Standardized SN connectivity\
-    -   `DMN`: Default Mode Network\
-        `DMN_z`: Standardized DMN connectivity\
-    -   `FPN`: Frontoparietal Network\
-        `FPN_z`: Standardized FPN connectivity\
+- **NPITOTAL**: Total NPI score; corresponds to *Total NPI/NPIQ score* per Kim et al.
 
-### Notes:
+- **NPITOTAL_z**: Standardized total NPI score (z-score)
 
-This analysis includes both **baseline-only** and **longitudinal**
-approaches. The baseline dataset uses the earliest available visit for
-each participant and is analyzed using standard linear (`lm`) and
-logistic (`glm`) regression models. This simplifies interpretation by
-avoiding within-subject correlation.
+- **NPIGTOT**: Apathy subscore (outcome in H1 and H2)
 
-The longitudinal dataset includes repeated imaging sessions per
-participant. To account for within-subject correlation over time, we use
-mixed-effects models (`lmer`, `glmer`) with random intercepts for
-participant ID (`PTID`). These models allow us to leverage follow-up
-data to increase statistical power while properly handling repeated
-measures.
+- **NPIGTOT_z**: Standardized apathy score (z-score)
 
-We z-score continuous predictors (FC, amyloid burden, age, education,
-total NPI) to improve model convergence and allow comparison of effect
-sizes.
+- **NPIG**: Binary apathy indicator  
+  (1 = apathy present if NPIGTOT > 0, otherwise 0)
 
-Binary predictors (e.g., amyloid positivity, NPIG) are not scaled. For
-H2 interaction models, continuous amyloid is used to evaluate graded
-effects across the amyloid spectrum.
+---
 
-Mediation analyses use quasi-Bayesian simulations (n = 5000) to estimate
-indirect (ACME), direct (ADE), total effects, and the proportion
-mediated, with 95% confidence intervals. Binary outcomes (e.g., apathy
-presence) are modeled with logistic mixed models, while continuous
-outcomes (e.g., NPI subscores) use linear mixed models.
+### Other NPS Outcomes for H3 (continuous 0–12)
 
-Functional connectivity is measured at the **within-network level**: SN:
-Salience Network\
-DMN: Default Mode Networt\
-FPN: Frontoparietal Network
+All subscores are standardized to z-scores for longitudinal mixed-effects models:
 
-Some models produced convergence warnings, likely due to low apathy
-prevalence and small subgroup sizes. We retain these models
-provisionally for exploratory interpretation and will follow up with
-alternative specifications if needed.
+- **Delusions**: `NPIATOT`, `NPIATOT_z`
+- **Hallucinations**: `NPIBTOT`, `NPIBTOT_z`
+- **Agitation**: `NPICTOT`, `NPICTOT_z`
+- **Depression / Dysphoria**: `NPIDTOT`, `NPIDTOT_z`
+- **Anxiety**: `NPIETOT`, `NPIETOT_z`
+- **Euphoria**: `NPIFTOT`, `NPIFTOT_z`
+- **Disinhibition**: `NPIHTOT`, `NPIHTOT_z`
+- **Irritability / Lability**: `NPIITOT`, `NPIITOT_z`
+- **Aberrant motor activity**: `NPIJTOT`, `NPIJTOT_z`
+- **Night-time behavioral disturbances**: `NPIKTOT`, `NPIKTOT_z`
+- **Appetite and eating abnormalities**: `NPILTOT`, `NPILTOT_z`
+
+---
+
+### Functional Connectivity (Within-Network)
+
+- **Salience Network (SN)**: `SN`, `SN_z`
+- **Default Mode Network (DMN)**: `DMN`, `DMN_z`
+- **Frontoparietal Network (FPN)**: `FPN`, `FPN_z`
+
+---
+
+## Notes
+
+This analysis includes both **baseline-only** and **longitudinal** approaches.
+
+The baseline dataset uses the earliest available visit per participant and is analyzed using standard linear (`lm`) and logistic (`glm`) regression models. This avoids within-subject correlation and simplifies interpretation.
+
+The longitudinal dataset includes repeated imaging sessions per participant. To account for within-subject correlation over time, mixed-effects models (`lmer`, `glmer`) with random intercepts for participant ID (`PTID`) are used.
+
+Continuous predictors (functional connectivity, amyloid burden, age, education, total NPI) are z-scored to improve model convergence and allow comparison of effect sizes. Binary predictors are not scaled.
+
+For interaction models (H2), continuous amyloid burden is used to evaluate graded effects across the amyloid spectrum.
+
+Mediation analyses use quasi-Bayesian simulations (n = 5000) to estimate indirect (ACME), direct (ADE), total effects, and the proportion mediated, with 95% confidence intervals. Binary outcomes are modeled with logistic mixed-effects models, while continuous outcomes use linear mixed-effects models.
+
+Some models produced convergence warnings, likely due to low apathy prevalence and small subgroup sizes. These models are retained provisionally for exploratory interpretation and will be followed up with alternative specifications if needed.
+
 
 # Descriptive Table
 
