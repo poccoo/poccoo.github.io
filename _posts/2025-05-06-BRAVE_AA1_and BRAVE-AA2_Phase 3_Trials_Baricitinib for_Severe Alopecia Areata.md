@@ -1,9 +1,18 @@
-# 
+---
+layout: post
+title: Flake it till you make it
+subtitle: BRAVE-AA1 and BRAVE-AA2 Phase 3 Trials: Baricitinib for Severe Alopecia Areata
+cover-img: /assets/img/image1.jpg
+tags: [BRAVE-AA1, BRAVE-AA2, Severe Alopecia Areata]
+author: Yixin Zheng
+
+
+---
+
+
 
 **Statistical Analysis Plan**  
-BRAVE-AA1 and BRAVE-AA2 Phase 3 Trials: Baricitinib for Severe Alopecia Areata
 
-## Jason Dagher (JD4141), Adeena Moghni (am6592), Shehzrin Shah (ss6985), Puyuan Zhang, Longyi Zhao (lz2949), Yixin Zheng (yz4993)
 
 ## Columbia University Mailman School of Public Health
 
@@ -147,6 +156,7 @@ Participants must agree not to use any treatments for alopecia areata during the
 Exceptions include:
 
 * Bimatoprost for eyelashes, if on a stable dose for ≥8 weeks prior to randomization,  
+
 * Finasteride or minoxidil (oral or topical), if on a stable dose for ≥12 months and expected to continue through Week 36\.
 
   ### ***Exclusion Criteria*** {#exclusion-criteria}
@@ -162,12 +172,19 @@ Additionally, individuals with unstable medical conditions requiring frequent ho
 Participants are also excluded if they received the following treatments within the specified time windows before randomization:
 
 * Topical corticosteroids (scalp or eyebrows): within 1 week  
+
 * Systemic or intralesional corticosteroids: within 8 weeks  
+
 * JAK inhibitors (oral or topical): oral within 8 weeks, topical within 4 weeks  
+
 * Topical immunotherapies: within 4 weeks  
+
 * Monoclonal antibodies: within 5 half-lives  
+
 * Platelet-rich plasma, phototherapy, cryotherapy, or statins for AA: within 4–8 weeks  
+
 * Finasteride/minoxidil: unless stable for ≥12 months  
+
 * Other immunosuppressants or targeted therapies: within 4–8 weeks, depending on the agent.
 
   4. ## **Study Design** {#study-design}
@@ -249,6 +266,7 @@ More specifically, let po be the proportion of patients achieving SALT ≤ 20 in
 and p1 , p2 be the proportions in the 2 mg and 4 mg baricitinib groups, respectively. We test each dose group vs. placebo separately:
 
 * H01: p1 \= p0 vs. H11: p1 \> p0  
+
 * H02: p2 \= p0 vs. H12: p2 \> p0
 
   2. ## **Statistical Decision Rules** {#statistical-decision-rules}
