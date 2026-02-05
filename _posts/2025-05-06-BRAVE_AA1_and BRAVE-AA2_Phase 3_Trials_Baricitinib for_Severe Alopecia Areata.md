@@ -5,8 +5,6 @@ subtitle: BRAVE-AA1 and BRAVE-AA2 Phase 3 Trials: Baricitinib for Severe Alopeci
 cover-img: /assets/img/image1.jpg
 tags: [BRAVE-AA1, BRAVE-AA2, Severe Alopecia Areata]
 author: Yixin Zheng
-
-
 ---
 
 
@@ -14,19 +12,14 @@ author: Yixin Zheng
 **Statistical Analysis Plan**  
 
 
-## Columbia University Mailman School of Public Health
+Columbia University Mailman School of Public Health
+Instructor: Naitee Ting
 
-## P8144 Pharmaceutical Statistics
+TABLE OF CONTENTS {#table-of-contents}
 
-## Instructor: Naitee Ting
+[TABLE OF CONTENTS	2](#table-of-contents)
 
-## May 6, 2025
-
-# **TABLE OF CONTENTS** {#table-of-contents}
-
-[**TABLE OF CONTENTS	2**](#table-of-contents)
-
-[**1\. INTRODUCTION	3**](#introduction)
+[1\. INTRODUCTION	3](#introduction)
 
 [1.1. Background	3](#background)
 
@@ -88,19 +81,10 @@ author: Yixin Zheng
 
 [APPENDICES A: Team Member Contribution	11](#appendices-a:-team-member-contribution)
 
-# 
 
-# 
+# 1.INTRODUCTION {#introduction}
 
-# 
-
-# 
-
-# 
-
-1. # **INTRODUCTION** {#introduction}
-
-   1. ## **Background** {#background}
+   1. ## **Background** {background}
 
 Alopecia areata (AA) is a chronic, immune-mediated disorder characterized by non-scarring hair loss, most commonly affecting the scalp(Lepe & Zito, 2024). With an estimated prevalence of approximately 0.27% in China alone, AA affects millions people globally and is associated with considerable psychosocial burden, particularly among adolescents and young adults with severe disease (Wang et al., 2023).
 
