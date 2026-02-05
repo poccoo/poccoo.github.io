@@ -1,7 +1,7 @@
 ---
 layout: post
 title: BRAVE-AA1 and BRAVE-AA2 Phase 3 Trials, Baricitinib for Severe Alopecia Areata
-subtitle: BRAVE-AA1 and BRAVE-AA2 Phase 3 Trials: Baricitinib for Severe Alopecia Areata
+subtitle: Baricitinib for Severe Alopecia Areata
 cover-img: /assets/img/image1.jpg
 tags: [BRAVE-AA1, BRAVE-AA2, Severe Alopecia Areata]
 comments: true
