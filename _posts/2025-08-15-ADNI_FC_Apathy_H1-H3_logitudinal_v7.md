@@ -255,7 +255,7 @@ Some models produced convergence warnings, likely due to low apathy prevalence a
 
 **Descriptives & sample sizes**
 
-```{r High-level N and prevalence}
+```
 # Prevalence
 baseline_prev <- mean(baseline$NPIG, na.rm = TRUE) * 100
 long_prev     <- mean(dat$NPIG,      na.rm = TRUE) * 100
