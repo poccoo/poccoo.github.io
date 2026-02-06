@@ -262,10 +262,10 @@ long_prev     <- mean(dat$NPIG,      na.rm = TRUE) * 100
 
 # Unique participants from each file
 n_baseline_ptid <- dplyr::n_distinct(baseline$PTID)
-n_long_ptid     <- dplyr::n_distinct(dat$PTID)
+n_long_ptid      <- dplyr::n_distinct(dat$PTID)
 
 # Visit structure (longitudinal)
-visit_counts       <- dat %>% dplyr::count(PTID, name = "n_visits")
+visit_counts        <- dat %>% dplyr::count(PTID, name = "n_visits")
 n_with_followup    <- sum(visit_counts$n_visits > 1)
 pct_with_followup  <- round(100 * n_with_followup / n_long_ptid, 1)
 
@@ -291,9 +291,8 @@ cat(sprintf("Total unique participants (longitudinal): %d (complete-case IDs: %d
 cat(sprintf("Longitudinal complete-case rows used in models: %d\n", n_long_rows_cc))
 cat(sprintf("Participants with \u22652 visits: %d (%.1f%%)\n",
             n_with_followup, pct_with_followup))
-```
 
-```{r Baseline descriptives by amyloid status}
+```r
 baseline_bl <- baseline %>%
   mutate(Amyloid_Group = ifelse(.data[[x_bin]] == 1, "Amyloid+", "Amyloid-"))
 
@@ -308,9 +307,6 @@ knitr::kable(
   caption = sprintf(
     "Baseline Descriptives by Amyloid Group")
 )
-```
-
-```{r Longitudinal cohort (first visit per PTID) descriptives}
 needed_cc <- c(x_bin, y_bin, covars_with_dx, "PTID")
 dat_long_cc <- dat[complete.cases(dat[, needed_cc]), ]
 
@@ -334,9 +330,7 @@ knitr::kable(
     n_long_rows, n_long_ids
   )
 )
-```
 
-```{r N used in each hypothesis/model family}
 # H1 (example shown for SN_z; all FC use same filtering structure)
 vars_h1_bin   <- c(x_cont, y_bin, fc_vars, covars_with_dx, "PTID") # binary apathy; continuous amyloid
 vars_h1_cont  <- c(x_cont, y_cont, fc_vars, covars_with_dx, "PTID") # continuous apathy
@@ -373,9 +367,7 @@ ns_h3 <- apply(vars_h3, 1, function(row) {
 }) %>% bind_rows()
 
 knitr::kable(ns_h3, caption = "H3 Longitudinal n’s by FC and NPS outcome")
-```
 
-```{r NPIGTOT distribution at baseline, collapse=TRUE}
 ggplot(baseline, aes(x = NPIGTOT)) +
   geom_histogram(binwidth = 1, fill = "aliceblue", alpha = 0.8, boundary = 0) +
   theme_minimal() +
@@ -384,7 +376,10 @@ ggplot(baseline, aes(x = NPIGTOT)) +
     x = "NPIGTOT Score",
     y = "Count"
   )
+
 ```
+
+
 
 **Demographics and Clinical Characteristics at baseline**
 
