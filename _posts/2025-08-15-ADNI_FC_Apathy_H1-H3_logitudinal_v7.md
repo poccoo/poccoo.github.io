@@ -383,7 +383,7 @@ ggplot(baseline, aes(x = NPIGTOT)) +
 
 **Demographics and Clinical Characteristics at baseline**
 
-```{r demographics and  fc distribution by amyloid}
+```r
 baseline1 <- baseline %>%
   mutate(Amyloid_Group = factor(
     ifelse(SUMMARYSUVR_WHOLECEREBNORM_1.11CUTOFF == 1, "Amyloid+", "Amyloid-")
@@ -415,7 +415,7 @@ ggplot(fc_by_amyloid, aes(x = Amyloid_Group, y = Value, fill = Amyloid_Group)) +
 
 ### baseline
 
-```{r H1 baseline, collapse=TRUE}
+```r
 results_list_H1_baseline <- list()
 
 for (m in fc_vars) {
@@ -463,7 +463,7 @@ for (m in fc_vars) {
 
 ### longitudinal
 
-```{r H1 longitudinal binary, collapse=TRUE}
+```r
 results_list_H1_logi <- list()
 
 for (m in fc_vars) {
@@ -523,7 +523,7 @@ for (m in fc_vars) {
 
 ### continuous
 
-```{r H1 longitudinal continuous}
+```r
 results_list_H1_cont <- list()
 
 for (m in fc_vars) {
@@ -580,7 +580,7 @@ for (m in fc_vars) {
 
 ### table
 
-```{r H1 table, collapse=TRUE}
+```
 # baseline
 mediation_table_H1_base <- dplyr::bind_rows(results_list_H1_baseline) %>%
   dplyr::mutate(
@@ -630,7 +630,7 @@ knitr::kable(mediation_table_H1_long,
 
 ### baseline
 
-```{r H2 baseline, collapse=TRUE}
+```r
 ## H2 Baseline (Binary Apathy)
 results_list_H2_baseline <- list()
 pvals_H2_base <- c()
@@ -677,7 +677,7 @@ df_H2_base <- bind_rows(results_list_H2_baseline) %>%
 
 ### longitudinal
 
-```{r H2 longitudinal: binary apathy with or without DX.new, collapse=TRUE}
+```r
 fit_h2_bin <- function(mediator, include_dx = TRUE) {
   covs <- if (include_dx) covars_with_dx else covars_no_dx
   needed <- c(x_bin, y_bin, mediator, covs, "PTID")
@@ -717,7 +717,7 @@ tab_h2_bin <- bind_rows(
 
 ### continuous
 
-```{r H2 continuous, collapse =TRUE}
+```r
 fit_h2_cont <- function(mediator, include_dx = TRUE) {
   covs <- if (include_dx) covars_with_dx else covars_no_dx
   needed <- c(x_cont, y_cont, mediator, covs, "PTID")
@@ -757,7 +757,7 @@ tab_h2_cont <- bind_rows(
 
 ### table
 
-```{r H2 table, collapse=TRUE}
+```r
 safe_select <- function(df, cols) {
   dplyr::select(df, any_of(cols))
 }
@@ -842,7 +842,7 @@ plot_model(
 
 ### baseline
 
-```{r H3 baseline, collapse=TRUE}
+```r
 results_list_H3_base <- list()
 covars_str <- paste(covars_with_dx, collapse = " + ")
 
@@ -876,7 +876,7 @@ for (m in fc_vars) {
 
 ### longitudinal
 
-```{r H3 longitudinal, collapse=TRUE}
+```r
 results_list_H3_long_manual <- list()
 covars_str <- paste(covars_with_dx, collapse = " + ")
 
@@ -916,7 +916,7 @@ for (m in fc_vars) {
 
 ### table
 
-```{r H3 table, collapse=TRUE}
+```r
 # make sure we always use dplyr's verbs here
 df_H3_base <- dplyr::bind_rows(results_list_H3_base) |>
   dplyr::mutate(
