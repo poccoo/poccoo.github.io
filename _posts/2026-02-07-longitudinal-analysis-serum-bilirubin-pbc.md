@@ -27,11 +27,11 @@ Dependence structure: What is the best dependence structure for the within-subje
 # Methods
 
 ## Outcome
-The primary longitudinal outcome was serum bilirubin, analyzed on the log scale, $\log(\text{bili})$, to reduce skewness and improve consistency. We recorded follow-up time in days from enrollment and converted it to years ($\text{day}/365.25$) for interpretability. Follow-up time was centered at its sample mean, 
+The primary longitudinal outcome was serum bilirubin, analyzed on the log scale, \(\log(\text{bili})\), to reduce skewness and improve consistency. We recorded follow-up time in days from enrollment and converted it to years (\(\text{day}/365.25\)) for interpretability. Follow-up time was centered at its sample mean, 
 $$t^* = t - \bar t$$, to improve numerical stability and make the model intercepts easier to understand.
 
 ## Data Cleaning
-The `pbcseq` dataset includes repeated lab measurements from the randomized D-penicillamine trial in patients with primary biliary cirrhosis. We restrict the data to randomized subjects with a recorded treatment assignment and to visits at or after baseline ($day \ge 0$). To emphasize the repeated-measures structure, we kept subjects who had at least 3 post-baseline bilirubin measurements. After filtering, we removed any unused factor levels. 
+The `pbcseq` dataset includes repeated lab measurements from the randomized D-penicillamine trial in patients with primary biliary cirrhosis. We restrict the data to randomized subjects with a recorded treatment assignment and to visits at or after baseline (\(day \ge 0\)). To emphasize the repeated-measures structure, we kept subjects who had at least 3 post-baseline bilirubin measurements. After filtering, we removed any unused factor levels. 
 
 
 
@@ -48,14 +48,14 @@ For exploratory data analysis, we
 
 ### Mean Structure
 
-Let $Y_{ij}$ denote $\log(\text{bilirubin})$ for subject $i$ measured at follow-up time $t_{ij}$ (years since baseline).
+Let \(Y_{ij}\) denote \(\log(\text{bilirubin})\) for subject \(i\) measured at follow-up time \(t_{ij}\) (years since baseline).
 
 We center time at the sample mean, 
 $$t^*_{ij} = t_{ij} - \bar t$$.
 
 We consider two candidate marginal mean models:
-(1) linear: $E(Y_{ij}) = \beta_0 + \beta_1 t^*_{ij}$;
-(2) cubic: $E(Y_{ij}) = \beta_0 + \beta_1 t^*_{ij} + \beta_2 (t^*_{ij})^2 + \beta_3 (t^*_{ij})^3$.
+(1) linear: \(E(Y_{ij}) = \beta_0 + \beta_1 t^*_{ij}\);
+(2) cubic: \(E(Y_{ij}) = \beta_0 + \beta_1 t^*_{ij} + \beta_2 (t^*_{ij})^2 + \beta_3 (t^*_{ij})^3\).
 
 ### Dependence Structure
 
@@ -145,7 +145,7 @@ In the cubic mean model, six possible dependence structures were fitted using ma
 The model with the lowest AIC was: Random intercept + exponential residual correlation with nugget effect (RI + Exp + nugget) (AIC = 1328.32, logLik = –656.16)
 All other candidate structures had higher AIC values, including the random intercept + random slope model and the random intercept + CAR(1) model.
 
-Let $Y_{ki}=\log(\text{bili}_{ki})$ be serum bilirubin for subject $k$ at visit $i$, with centered time
+Let \(Y_{ki}=\log(\text{bili}_{ki})\) be serum bilirubin for subject \(k\) at visit \(i\), with centered time
 $$t^*_{ki}=t_{ki}-\bar t.$$
 
 The fitted model is
@@ -153,7 +153,7 @@ $$Y_{ki}= \beta_0 + \beta_1 t^*_{ki} + \beta_2 (t^*_{ki})^2 + \beta_3 (t^*_{ki})
 
 The selected dependence structure is
 $$\operatorname{Corr}(\varepsilon_{ki},\varepsilon_{kj})= \exp\!\left(-\phi|t^*_{ki}-t^*_{kj}|\right)+\delta_{ij}\sigma^2_{\text{indep}},$$
-with $\delta_{ij}=1$ if $i=j$ and $0$ otherwise.
+with \(\delta_{ij}=1\) if \(i=j\) and \(0\) otherwise.
 
 ## Mean Structure Comparison
 
