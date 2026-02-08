@@ -72,17 +72,10 @@ Under the cubic mean model, we compare dependence structures fit by maximum like
 Dependence structures were compared under the cubic mean model using maximum likelihood estimation to enable comparison via Akaike’s Information Criterion (AIC). The model with the smallest AIC was selected as the preferred dependence structure. Holding this dependence structure fixed, the linear and cubic mean models were compared using a likelihood ratio test, with both models fit using maximum likelihood.
 
 The null and alternative hypotheses are
-$$
-H_0:\ \beta_2=\beta_3=0 \quad \text{(linear mean)}, 
-H_A:\ (\beta_2,\beta_3)\neq(0,0) \quad \text{(cubic mean)}
-$$
+$$H_0:\ \beta_2=\beta_3=0 \quad \text{(linear mean)}, \qquad H_A:\ (\beta_2,\beta_3)\neq(0,0) \quad \text{(cubic mean)}$$
 
 The likelihood ratio test statistic is
-$$
-\Lambda = 2\left\{\ell(\widehat{\theta}_{\text{cubic}}) -
-\ell(\widehat{\theta}_{\text{linear}})\right\}
-\sim \chi^2_{2} \quad \text{under } H_0.
-$$
+$$\Lambda = 2\left\{\ell(\widehat{\theta}_{\text{cubic}}) - \ell(\widehat{\theta}_{\text{linear}})\right\} \sim \chi^2_{2} \quad \text{under } H_0.$$
 
 ## Diagnostics
 
@@ -153,23 +146,13 @@ The model with the lowest AIC was: Random intercept + exponential residual corre
 All other candidate structures had higher AIC values, including the random intercept + random slope model and the random intercept + CAR(1) model.
 
 Let $Y_{ki}=\log(\text{bili}_{ki})$ be serum bilirubin for subject $k$ at visit $i$, with centered time
-\[
-t^*_{ki}=t_{ki}-\bar t .
-\]
+$$t^*_{ki}=t_{ki}-\bar t.$$
 
 The fitted model is
-\[
-Y_{ki}
-= \beta_0 + \beta_1 t^*_{ki} + \beta_2 (t^*_{ki})^2 + \beta_3 (t^*_{ki})^3
-+ b_{0k} + \varepsilon_{ki},
-\qquad b_{0k}\sim N(0,\tau_0^2).
-\]
+$$Y_{ki}= \beta_0 + \beta_1 t^*_{ki} + \beta_2 (t^*_{ki})^2 + \beta_3 (t^*_{ki})^3 + b_{0k} + \varepsilon_{ki}, \qquad b_{0k}\sim N(0,\tau_0^2).$$
 
 The selected dependence structure is
-\[
-\operatorname{Corr}(\varepsilon_{ki},\varepsilon_{kj})
-= \exp\!\left(-\phi|t^*_{ki}-t^*_{kj}|\right)+\delta_{ij}\sigma^2_{\text{indep}},
-\]
+$$\operatorname{Corr}(\varepsilon_{ki},\varepsilon_{kj})= \exp\!\left(-\phi|t^*_{ki}-t^*_{kj}|\right)+\delta_{ij}\sigma^2_{\text{indep}},$$
 with $\delta_{ij}=1$ if $i=j$ and $0$ otherwise.
 
 ## Mean Structure Comparison
@@ -186,19 +169,11 @@ The likelihood ratio test comparing the linear and cubic mean models gave the fo
 
 ## Final Model
 Based on the likelihood ratio test, the linear mean model was retained. The final fitted model is
-\[
-Y_{ki}
-= \beta_0 + \beta_1 t^*_{ki} + b_{0k} + \varepsilon_{ki},
-\qquad b_{0k}\sim N(0,\tau_0^2),
-\]
+$$Y_{ki}= \beta_0 + \beta_1 t^*_{ki} + b_{0k} + \varepsilon_{ki}, \qquad b_{0k}\sim N(0,\tau_0^2),$$
 with exponential residual correlation and a nugget effect.
 
 The fitted marginal mean is
-\[
-\widehat{E}(Y_{ki})
-= \widehat{\beta}_0 + \widehat{\beta}_1 t^*_{ki}
-= 0.7918 + 0.1095\, t^*_{ki}
-\]
+$$\widehat{E}(Y_{ki})= \widehat{\beta}_0 + \widehat{\beta}_1 t^*_{ki}= 0.7918 + 0.1095\, t^*_{ki}$$
 
 The estimated fixed effects show a positive linear association between centered follow-up time and log-transformed serum bilirubin.
 
@@ -258,8 +233,3 @@ The final model selected captures the following three key features of the data: 
 There are some limitations to consider. After the filtration, only patients with D-penicillamine treatment were left; hence, it was not possible to study the effects of treatment or the interaction between treatment and time. We also used time as the only predictor in our model; incorporation of disease severity or other clinical information could further enhance the precision of the estimated trends.
 
 In a nutshell, the current study shows that careful exploratory analysis and thoughtful model comparison help choose the right ways of describing both average trends and within-person patterns in longitudinal data. The findings emphasize the need to consider serial correlation and patient differences while modeling repeated biomarker measurements in chronic diseases like primary biliary cirrhosis.
-
-## Files
-
-- [Final report (PDF)]({{ '/assets/reports/longitudinal-pbc/final_1-1.pdf' | absolute_url }})
-- [Analysis source (Rmd)]({{ '/assets/reports/longitudinal-pbc/final_1.Rmd' | absolute_url }})
