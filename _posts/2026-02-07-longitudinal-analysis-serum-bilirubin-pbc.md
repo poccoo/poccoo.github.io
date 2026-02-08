@@ -48,22 +48,16 @@ For exploratory data analysis, we
 
 ### Mean Structure
 
-Let $Y_{ij}$ denote \(\log(\text{bilirubin})\) for subject $i$ measured at follow-up time $t_{ij}$ (years since baseline).
+Let \(Y_{ij}\) denote \(\log(\text{bilirubin})\) for subject \(i\) measured at follow-up time \(t_{ij}\) (years since baseline).
 
-We center time at the sample mean, 
-$$t^*_{ij} = t_{ij} - \bar t$$.
+We center time at the sample mean, \(t^*_{ij} = t_{ij} - \bar t\).
 
 We consider two candidate marginal mean models:
-(1) linear: 
-$$
-(E(Y_{ij}) = \beta_0 + \beta_1 t^*_{ij})
-$$
+(1) linear:
+$$E(Y_{ij}) = \beta_0 + \beta_1 t^*_{ij}$$
 
-
-(2) cubic: \(E(Y_{ij}) = \beta_0 + \beta_1 t^*_{ij} + \beta_2 (t^*_{ij})^2 + \beta_3 (t^*_{ij})^3\)
-$$
-(E(Y_{ij}) = \beta_0 + \beta_1 t^*_{ij} + \beta_2 (t^*_{ij})^2 + \beta_3 (t^*_{ij})^3)
-$$
+(2) cubic:
+$$E(Y_{ij}) = \beta_0 + \beta_1 t^*_{ij} + \beta_2 (t^*_{ij})^2 + \beta_3 (t^*_{ij})^3$$
 
 ### Dependence Structure
 
