@@ -65,6 +65,32 @@ permalink: /skills/
     font-weight: 600;
     color: #2f2f2f;
   }
+
+  .wetlab-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+    margin-top: 14px;
+  }
+
+  .wetlab-card {
+    border: 1px solid #dce3ec;
+    border-radius: 10px;
+    padding: 12px 14px;
+    background: #ffffff;
+  }
+
+  .wetlab-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1f2d3d;
+  }
+
+  .wetlab-note {
+    font-size: 13px;
+    color: #5b6773;
+    margin-top: 5px;
+  }
 </style>
 
 ## Core Tools
@@ -119,5 +145,34 @@ permalink: /skills/
       src="https://cdn.simpleicons.org/cplusplus/00599C"
       alt="C++ icon">
     <div class="skill-name">C++</div>
+  </div>
+</div>
+
+## Wet-Lab Skills
+
+<div class="wetlab-grid">
+  <div class="wetlab-card">
+    <div class="wetlab-title">Protein Extraction Workflows</div>
+    <div class="wetlab-note">Hands-on soybean protein extraction protocol optimization.</div>
+  </div>
+
+  <div class="wetlab-card">
+    <div class="wetlab-title">Ion Exchange HPLC (IEX-HPLC)</div>
+    <div class="wetlab-note">Comparative protein analysis and result interpretation.</div>
+  </div>
+
+  <div class="wetlab-card">
+    <div class="wetlab-title">Sample Preparation and Lab Handling</div>
+    <div class="wetlab-note">Routine wet-lab sample prep, handling, and workflow execution.</div>
+  </div>
+
+  <div class="wetlab-card">
+    <div class="wetlab-title">Biology and Organic Chemistry Lab Training</div>
+    <div class="wetlab-note">Formal coursework-linked laboratory practice and reporting.</div>
+  </div>
+
+  <div class="wetlab-card">
+    <div class="wetlab-title">Experimental Documentation</div>
+    <div class="wetlab-note">Clear recording of procedures, outputs, and reproducible notes.</div>
   </div>
 </div>
