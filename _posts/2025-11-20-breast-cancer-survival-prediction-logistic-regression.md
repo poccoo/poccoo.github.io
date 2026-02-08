@@ -2,7 +2,7 @@
 layout: post
 title: Prediction of Survival Rate for Breast Cancer Patients
 subtitle: Logistic regression, fairness reweighting, and subgroup AUC analysis
-cover-img: /assets/img/image1.jpg
+cover-img: /assets/img/breast-cancer-cover.png
 tags: [Biostatistical Methods, Logistic Regression, Fairness, Breast Cancer]
 comments: true
 mathjax: true
@@ -366,4 +366,3 @@ Variables](/assets/reports/biostat-1-breast-cancer/plots/correlation_matrix_plot
 
 For full code results, please refer to the `.txt` files available in the
 `results` folder of the GitHub repository: https://github.com/Yixin-Zheng/p8130_finalproject.
-
