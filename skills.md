@@ -6,6 +6,7 @@ permalink: /skills/
 ---
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
 <style>
   .skills-grid {
@@ -68,28 +69,47 @@ permalink: /skills/
 
   .wetlab-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
     gap: 14px;
     margin-top: 14px;
   }
 
   .wetlab-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
     border: 1px solid #dce3ec;
     border-radius: 10px;
-    padding: 12px 14px;
+    padding: 11px 12px;
     background: #ffffff;
+    min-height: 110px;
+  }
+
+  .wetlab-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .wetlab-icon {
+    width: 20px;
+    text-align: center;
+    color: #2a6fb0;
+    font-size: 14px;
   }
 
   .wetlab-title {
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 600;
     color: #1f2d3d;
+    line-height: 1.25;
   }
 
   .wetlab-note {
-    font-size: 13px;
+    font-size: 12px;
     color: #5b6773;
-    margin-top: 5px;
+    margin-top: 6px;
+    line-height: 1.35;
   }
 </style>
 
@@ -152,27 +172,42 @@ permalink: /skills/
 
 <div class="wetlab-grid">
   <div class="wetlab-card">
-    <div class="wetlab-title">Protein Extraction Workflows</div>
-    <div class="wetlab-note">Hands-on soybean protein extraction protocol optimization.</div>
+    <div class="wetlab-head">
+      <span class="wetlab-icon"><i class="fa-solid fa-flask-vial" aria-hidden="true"></i></span>
+      <div class="wetlab-title">Protein Extraction</div>
+    </div>
+    <div class="wetlab-note">Soy protein protocol optimization.</div>
   </div>
 
   <div class="wetlab-card">
-    <div class="wetlab-title">Ion Exchange HPLC (IEX-HPLC)</div>
-    <div class="wetlab-note">Comparative protein analysis and result interpretation.</div>
+    <div class="wetlab-head">
+      <span class="wetlab-icon"><i class="fa-solid fa-chart-line" aria-hidden="true"></i></span>
+      <div class="wetlab-title">IEX-HPLC</div>
+    </div>
+    <div class="wetlab-note">Comparative protein profiling.</div>
   </div>
 
   <div class="wetlab-card">
-    <div class="wetlab-title">Sample Preparation and Lab Handling</div>
-    <div class="wetlab-note">Routine wet-lab sample prep, handling, and workflow execution.</div>
+    <div class="wetlab-head">
+      <span class="wetlab-icon"><i class="fa-solid fa-vials" aria-hidden="true"></i></span>
+      <div class="wetlab-title">Sample Prep</div>
+    </div>
+    <div class="wetlab-note">Routine prep and lab handling.</div>
   </div>
 
   <div class="wetlab-card">
-    <div class="wetlab-title">Biology and Organic Chemistry Lab Training</div>
-    <div class="wetlab-note">Formal coursework-linked laboratory practice and reporting.</div>
+    <div class="wetlab-head">
+      <span class="wetlab-icon"><i class="fa-solid fa-microscope" aria-hidden="true"></i></span>
+      <div class="wetlab-title">Bio/Chem Lab Training</div>
+    </div>
+    <div class="wetlab-note">Coursework-based lab practice.</div>
   </div>
 
   <div class="wetlab-card">
-    <div class="wetlab-title">Experimental Documentation</div>
-    <div class="wetlab-note">Clear recording of procedures, outputs, and reproducible notes.</div>
+    <div class="wetlab-head">
+      <span class="wetlab-icon"><i class="fa-solid fa-clipboard-list" aria-hidden="true"></i></span>
+      <div class="wetlab-title">Lab Documentation</div>
+    </div>
+    <div class="wetlab-note">Procedures, outputs, and notes.</div>
   </div>
 </div>
