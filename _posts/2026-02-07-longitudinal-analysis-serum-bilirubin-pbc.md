@@ -28,7 +28,7 @@ Dependence structure: What is the best dependence structure for the within-subje
 
 ## Outcome
 The primary longitudinal outcome was serum bilirubin, analyzed on the log scale, \(\log(\text{bili})\), to reduce skewness and improve consistency. We recorded follow-up time in days from enrollment and converted it to years (\(\text{day}/365.25\)) for interpretability. Follow-up time was centered at its sample mean, 
-$$t^* = t - \bar t$$, to improve numerical stability and make the model intercepts easier to understand.
+$t^* = t - \bar t$, to improve numerical stability and make the model intercepts easier to understand.
 
 ## Data Cleaning
 The `pbcseq` dataset includes repeated lab measurements from the randomized D-penicillamine trial in patients with primary biliary cirrhosis. We restrict the data to randomized subjects with a recorded treatment assignment and to visits at or after baseline (\(day \ge 0\)). To emphasize the repeated-measures structure, we kept subjects who had at least 3 post-baseline bilirubin measurements. After filtering, we removed any unused factor levels. 
@@ -48,7 +48,7 @@ For exploratory data analysis, we
 
 ### Mean Structure
 
-Let \(Y_{ij}\) denote \(\log(\text{bilirubin})\) for subject \(i\) measured at follow-up time \(t_{ij}\) (years since baseline).
+Let \(Y_{ij}\) denote log(\text{bilirubin for subject \(i\) measured at follow-up time \(t_{ij}\) (years since baseline).
 
 We center time at the sample mean, \(t^*_{ij} = t_{ij} - \bar t\).
 
