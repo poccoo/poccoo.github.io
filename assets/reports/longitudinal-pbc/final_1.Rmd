@@ -1,0 +1,505 @@
+---
+title: "Longitudinal Analysis of Serum Bilirubin Trajectories in Primary Biliary Cirrhosis"
+author: "Yixin Zheng"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    number_sections: true
+fontsize: 12pt
+geometry: margin=1in
+header-includes:
+  - \usepackage{setspace}
+  - \doublespacing
+  - \usepackage{float}
+  - \usepackage{placeins}
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, fig.align = "center")
+knitr::opts_chunk$set(cache = FALSE, fig.cap = NULL)
+
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(nlme)
+library(splines)
+library(knitr)
+library(kableExtra)
+library(survival)
+```
+
+# Abstract
+This study aimed to describe how log-transformed serum bilirubin levels change over time in patients with primary biliary cirrhosis and to find the best way to model repeated measurements from the same patient. Analyzing data from the randomized D-penicillamine trial, we found that a random-intercept model with exponential residual correlation and a nugget effect best fit the data. A linear time trend was enough to describe the average change in bilirubin levels.
+
+# Introduction
+PBC is a chronic liver disease where liver function gradually deteriorates. Serum bilirubin is an important marker for disease severity, and tracking the changes in serum bilirubin level helps to illustrate the natural history of the disease. Repeated measurements carry more information than a single first measurement alone.
+Biomarker data collected over time involves repeated measurements on the same individual that are interrelated and may differ significantly between individuals. Ignoring such patterns can lead to misleading results. Linear mixed-effects models take these relationships and differences into account in the analyses of such data.
+This analysis is based on data from a randomized D-penicillamine trial in PBC patients (pbcseq dataset, R survival package), which contains repeated laboratory measurements over time and is hence ideal for illustrating how to work with data collected over time.
+The key scientific and statistical question being addressed in this analysis is:
+What is the average longitudinal profile of log-transformed serum bilirubin in patients with PBC, and what dependence structure within the subjects best describes the repeated measures?
+To answer this question, we concentrate on two formal sub-questions:
+Mean structure: Is a linear time trend sufficient to model the marginal mean trajectory of log(serum bilirubin), or is there data-based support for a more general cubic time trend?
+Dependence structure: What is the best dependence structure for the within-subject correlation in the bilirubin measurements after accounting for subject-specific heterogeneity, which ranges from independent errors to random-effects and continuous-time residual correlation models?
+
+# Methods
+
+## Outcome
+The primary longitudinal outcome was serum bilirubin, analyzed on the log scale, $\log(\text{bili})$, to reduce skewness and improve consistency. We recorded follow-up time in days from enrollment and converted it to years ($\text{day}/365.25$) for interpretability. Follow-up time was centered at its sample mean, 
+$$t^* = t - \bar t$$, to improve numerical stability and make the model intercepts easier to understand.
+
+## Data Cleaning
+The `pbcseq` dataset includes repeated lab measurements from the randomized D-penicillamine trial in patients with primary biliary cirrhosis. We restrict the data to randomized subjects with a recorded treatment assignment and to visits at or after baseline ($day \ge 0$). To emphasize the repeated-measures structure, we kept subjects who had at least 3 post-baseline bilirubin measurements. After filtering, we removed any unused factor levels. 
+
+```{r data cleaning, results='hide'}
+data(pbcseq, package = "survival")
+
+pbc0 <- pbcseq %>%
+  mutate(
+    id = factor(id),
+    sex = factor(sex),
+    trt = factor(trt, levels = c(1, 2),
+                 labels = c("D-penicillamine", "Placebo")),
+    stage = factor(stage),
+    edema = factor(edema),
+    ascites = factor(ascites),
+    hepato = factor(hepato),
+    spiders = factor(spiders)
+  )
+
+pbc_rct <- pbc0 %>%
+  filter(!is.na(trt), !is.na(day), day >= 0) %>%
+  mutate(
+    day_yr  = day / 365.25,
+    log_bili = ifelse(!is.na(bili) & bili > 0, log(bili), NA_real_)
+  )
+
+sapply(pbc_rct[, c("id","trt","day","day_yr","bili","log_bili")], \(x) sum(is.na(x)))
+
+summary(pbc_rct[, c("day_yr","bili","log_bili")])
+
+dat_main <- pbc_rct %>%
+  filter(!is.na(log_bili), !is.na(day_yr)) %>%
+  group_by(id) %>%
+  mutate(n_i = n()) %>%
+  ungroup() %>%
+  filter(n_i >= 3) %>%
+  mutate(trt = droplevels(trt))
+
+t_bar <- mean(dat_main$day_yr, na.rm = TRUE)
+dat_main <- dat_main %>%
+  mutate(t_star = day_yr - t_bar)
+```
+
+## Exploratory Data Analysis
+For exploratory data analysis, we 
+
+(i) checked marginal distributions and summary statistics as basic sanity checks. This included the number of subjects and observations, the distribution of repeated measurements per subject, the range of follow-up times, the marginal distribution of log-transformed serum bilirubin, and treatment levels.
+
+(ii) explored the marginal mean structure by plotting log(bilirubin) against follow-up time for all observations. We also plot individual trajectories for a random subset of subjects to aid visualization.
+
+(iii) assessed within-subject dependence by fitting a marginal linear model with independent errors. We then calculated the lag-1 correlation of within-subject residuals and examined the residual autocorrelation function (ACF) to assess autocorrelation across multiple lags.
+
+## Models
+
+### Mean Structure
+
+Let $Y_{ij}$ denote $\log(\text{bilirubin})$ for subject $i$ measured at follow-up time $t_{ij}$ (years since baseline).
+
+We center time at the sample mean, 
+$$t^*_{ij} = t_{ij} - \bar t$$.
+
+We consider two candidate marginal mean models:
+(1) linear: $E(Y_{ij}) = \beta_0 + \beta_1 t^*_{ij}$;
+(2) cubic: $E(Y_{ij}) = \beta_0 + \beta_1 t^*_{ij} + \beta_2 (t^*_{ij})^2 + \beta_3 (t^*_{ij})^3$.
+
+### Dependence Structure
+
+Under the cubic mean model, we compare dependence structures fit by maximum likelihood (ML) to enable AIC comparisons:
+(1) independent errors (GLS);
+(2) random intercept (RI);
+(3) random intercept + random slope in time (RI/RS);
+(4) RI + continuous-time AR(1) residual correlation (CAR(1));
+(5) RI + exponential residual correlation;
+(6) RI + exponential residual correlation with a nugget effect.
+
+## Model Selection
+
+Dependence structures were compared under the cubic mean model using maximum likelihood estimation to enable comparison via Akaike’s Information Criterion (AIC). The model with the smallest AIC was selected as the preferred dependence structure. Holding this dependence structure fixed, the linear and cubic mean models were compared using a likelihood ratio test, with both models fit using maximum likelihood.
+
+The null and alternative hypotheses are
+$$
+H_0:\ \beta_2=\beta_3=0 \quad \text{(linear mean)}, 
+H_A:\ (\beta_2,\beta_3)\neq(0,0) \quad \text{(cubic mean)}
+$$
+
+The likelihood ratio test statistic is
+$$
+\Lambda = 2\left\{\ell(\widehat{\theta}_{\text{cubic}}) -
+\ell(\widehat{\theta}_{\text{linear}})\right\}
+\sim \chi^2_{2} \quad \text{under } H_0.
+$$
+
+## Diagnostics
+
+Model diagnostics were conducted for the selected final model. These included examination of normalized residuals versus fitted values, normal Q–Q plots of residuals, residual autocorrelation functions, and residuals plotted against follow-up time. These diagnostics were used to assess mean specification, distributional assumptions, and the presence of remaining within-subject dependence.
+
+# Results 
+
+## Exploratory Data Analysis
+
+### Marginal distributions / sanity check
+```{r eda1 sanity and marginal, results='hide'}
+## sanity check
+c(n_subjects = n_distinct(dat_main$id), n_obs = nrow(dat_main))
+summary(dat_main$n_i)         
+mean(dat_main$t_star)       
+table(dat_main$trt)         
+
+## check follow-up time range + nonnegative day
+range(dat_main$day_yr, na.rm = TRUE)
+min(dat_main$day, na.rm = TRUE)
+
+## check per-subject repeated measures
+tab_ni <- dat_main %>%
+  dplyr::count(id, name = "n_i")
+summary(tab_ni$n_i)
+min(tab_ni$n_i)
+
+## outcome range check
+summary(dat_main$log_bili)
+
+## treatment levels
+table(dat_main$trt)
+nlevels(dat_main$trt) #After filtering, only the D-penicillamine arm remained in the analytic dataset; therefore, treatment effects were not modeled.
+```
+After filtering, the analytic dataset includes 128 subjects and 935 observations. Each subject has at least 3 repeated measurements, with a median of 7 and a maximum of 16 visits. The mean of the centered follow-up time is approximately 0, confirming correct centering.
+
+Follow-up time ranges from 0 to 13.90 years after baseline, and all visits are at or after baseline (day 0 or later). The log-transformed serum bilirubin values range from -1.61 to 3.63, with a median of 0.26 and a mean of 0.58. Figure 1 shows the marginal distribution of log(bilirubin).
+
+After keeping only subjects with at least three visits, the dataset includes only the D-penicillamine treatment arm. As a result, treatment effects are not included in later analyses.
+
+```{r eda1plot, fig.cap = "Exploratory Plot: Marginal Distribution", fig.width = 6, fig.height = 3.7}
+ggplot(dat_main, aes(x = log_bili)) +
+  geom_histogram(bins = 30) +
+  labs(
+    title = "Marginal distribution of log(bilirubin)",
+    x = "log(bilirubin) (mg/dL)",
+    y = "count"
+  ) +
+  theme_bw(base_size = 12)
+```
+\FloatBarrier
+
+Figure 1 shows the marginal distribution of log(bilirubin).
+The marginal distribution of log(bilirubin) is right-skewed, with most observations concentrated between approximately -0.5 and 1.5. A smaller number of observations extend into higher values, up to about 
+3.5
+
+### Mean Structure (population trend + individual trajectories)
+```{r eda2 mean structure, fig.cap = "Exploratory Plot: Mean Structure", fig.width = 6, fig.height = 3.5}
+set.seed(8157)
+id_samp <- sample(unique(dat_main$id), size = min(12, n_distinct(dat_main$id)))
+dat_samp <- dat_main %>% filter(id %in% id_samp)
+
+ggplot(dat_main, aes(x = day_yr, y = log_bili)) +
+  geom_point(alpha = 0.10) +
+  geom_line(data = dat_samp, aes(group = id, color = id), linewidth = 0.9) +
+  geom_point(data = dat_samp, aes(color = id), size = 1.2) +
+  guides(color = "none") +
+  labs(
+    title = "log(Bilirubin) over follow-up time",
+    subtitle = "Background: all observations; highlighted: random sample of subjects",
+    x = "Follow-up time (years since baseline)",
+    y = "log(bilirubin) (mg/dL)"
+  ) +
+  theme_bw(base_size = 12)
+```
+Figure 2 shows log(bilirubin) over follow-up time for all observations. It also includes individual trajectories for a random sample of subjects.
+Over the follow-up period, log(bilirubin) values vary widely across subjects. Each person starts at a different baseline, and their levels change in different ways over time. Some people’s values go up, while others stay about the same or change in other ways, showing that each subject has a unique pattern.
+
+### Dependence Structure (quantitative check via lag-1 residual correlation)
+
+```{r eda3 dependence}
+fit_indep_eda <- gls(
+  log_bili ~ t_star,
+  data = dat_main,
+  method = "ML"
+)
+
+dat_res <- dat_main %>%
+  mutate(resid = residuals(fit_indep_eda, type = "response")) %>%
+  arrange(id, day_yr)
+
+lag1_cor <- dat_res %>%
+  group_by(id) %>%
+  mutate(
+    resid_lag1 = dplyr::lag(resid),
+    dt_lag1 = day_yr - dplyr::lag(day_yr)
+  ) %>%
+  ungroup() %>%
+  filter(!is.na(resid_lag1), dt_lag1 > 0) %>%
+  summarise(
+    cor_lag1 = cor(resid, resid_lag1),
+    median_dt = median(dt_lag1),
+    n_pairs = n()
+  )
+
+lag1_cor %>%
+  kable(digits = 3,
+        caption = "Lag-1 residual correlation from marginal linear model (EDA)")
+```
+
+```{r eda4 acf, fig.cap = "Exploratory Plot: ACF", fig.width = 4, fig.height = 2}
+acf(dat_res$resid, main = "ACF of marginal-model residuals")
+```
+\FloatBarrier
+A marginal linear model with independent errors was used to assess within-subject dependence.
+The estimated lag-1 residual correlation was 0.926 across 807 residual pairs, with a median time gap of 0.98 years (Table 1).
+The residual ACF (Figure 3) indicates strong autocorrelation at small lags.
+
+## Dependence Structure Comparison 
+
+```{r dependence structure}
+mean_linear <- log_bili ~ t_star
+mean_cubic <- log_bili ~ t_star + I(t_star^2) + I(t_star^3)
+
+# (1) independent errors
+fit1_ML <- gls(mean_cubic, data = dat_main, method = "ML")
+
+# (2) random intercept
+fit2_ML <- lme(
+  fixed = mean_cubic,
+  random = ~ 1 | id,
+  data = dat_main,
+  method = "ML"
+)
+
+# (3) random intercept + random slope (t_star)
+fit3_ML <- lme(
+  fixed = mean_cubic,
+  random = ~ t_star | id,
+  data = dat_main,
+  method = "ML"
+)
+
+# (4) random intercept + CAR(1) residual correlation
+fit4_ML <- lme(
+  fixed = mean_cubic,
+  random = ~ 1 | id,
+  correlation = corCAR1(form = ~ t_star | id),
+  data = dat_main,
+  method = "ML"
+)
+
+# (5) random intercept + exponential correlation
+fit5_ML <- lme(
+  fixed = mean_cubic,
+  random = ~ 1 | id,
+  correlation = corExp(form = ~ t_star | id),
+  data = dat_main,
+  method = "ML"
+)
+
+# (6) random intercept + exponential + nugget
+fit6_ML <- lme(
+  fixed = mean_cubic,
+  random = ~ 1 | id,
+  correlation = corExp(form = ~ t_star | id, nugget = TRUE),
+  data = dat_main,
+  method = "ML"
+)
+
+tab_AIC <- tibble(
+  Dependence = c(
+    "1. Independent (gls)",
+    "2. RI",
+    "3. RI + RS (t_star)",
+    "4. RI + CAR(1)",
+    "5. RI + Exp",
+    "6. RI + Exp + nugget"
+  ),
+  logLik = c(logLik(fit1_ML), logLik(fit2_ML), logLik(fit3_ML),
+             logLik(fit4_ML), logLik(fit5_ML), logLik(fit6_ML)),
+  AIC = c(AIC(fit1_ML), AIC(fit2_ML), AIC(fit3_ML),
+          AIC(fit4_ML), AIC(fit5_ML), AIC(fit6_ML))
+) %>%
+  arrange(AIC)
+
+tab_AIC %>%
+  kable(digits = 2, caption = "Dependence structure comparison under cubic mean (ML)") 
+
+best_name <- tab_AIC$Dependence[1]
+best_name
+
+# pick the best model
+fit_cubic_best <- switch(
+  best_name,
+  "1. Independent (gls)" = fit1_ML,
+  "2. RI" = fit2_ML,
+  "3. RI + RS (t_star)" = fit3_ML,
+  "4. RI + CAR(1)" = fit4_ML,
+  "5. RI + Exp" = fit5_ML,
+  "6. RI + Exp + nugget" = fit6_ML
+)
+
+```
+In the cubic mean model, six possible dependence structures were fitted using maximum likelihood and compared using AIC (see Table 2).
+The model with the lowest AIC was: Random intercept + exponential residual correlation with nugget effect (RI + Exp + nugget) (AIC = 1328.32, logLik = –656.16)
+All other candidate structures had higher AIC values, including the random intercept + random slope model and the random intercept + CAR(1) model.
+
+Let $Y_{ki}=\log(\text{bili}_{ki})$ be serum bilirubin for subject $k$ at visit $i$, with centered time
+\[
+t^*_{ki}=t_{ki}-\bar t .
+\]
+
+The fitted model is
+\[
+Y_{ki}
+= \beta_0 + \beta_1 t^*_{ki} + \beta_2 (t^*_{ki})^2 + \beta_3 (t^*_{ki})^3
++ b_{0k} + \varepsilon_{ki},
+\qquad b_{0k}\sim N(0,\tau_0^2).
+\]
+
+The selected dependence structure is
+\[
+\operatorname{Corr}(\varepsilon_{ki},\varepsilon_{kj})
+= \exp\!\left(-\phi|t^*_{ki}-t^*_{kj}|\right)+\delta_{ij}\sigma^2_{\text{indep}},
+\]
+with $\delta_{ij}=1$ if $i=j$ and $0$ otherwise.
+
+## Mean Structure Comparison
+
+```{r mean_compare_LRT}
+fit_linear_best <- update(fit_cubic_best, fixed = mean_linear)
+
+anova(fit_linear_best, fit_cubic_best)
+```
+A likelihood ratio test was used with the chosen dependence structure (RI + Exp + nugget) to compare the linear and cubic mean models.
+
+The likelihood ratio test comparing the linear and cubic mean models gave the following results: LR = 3.89, df = 2, p = 0.143. The AIC values were 1328.21 for the linear model and 1328.32 for the cubic model.
+
+## Final Model
+Based on the likelihood ratio test, the linear mean model was retained. The final fitted model is
+\[
+Y_{ki}
+= \beta_0 + \beta_1 t^*_{ki} + b_{0k} + \varepsilon_{ki},
+\qquad b_{0k}\sim N(0,\tau_0^2),
+\]
+with exponential residual correlation and a nugget effect.
+
+The fitted marginal mean is
+\[
+\widehat{E}(Y_{ki})
+= \widehat{\beta}_0 + \widehat{\beta}_1 t^*_{ki}
+= 0.7918 + 0.1095\, t^*_{ki}
+\]
+
+The estimated fixed effects show a positive linear association between centered follow-up time and log-transformed serum bilirubin.
+
+### Fixed Effect estimates
+
+```{r fixed_effect_table}
+coefs_best <- as.data.frame(summary(fit_linear_best)$tTable)
+
+tab_fixef <- tibble::tibble(
+  Term = rownames(coefs_best),
+  Estimate = coefs_best$Value,
+  Std_Error = coefs_best$Std.Error
+)
+
+knitr::kable(
+  tab_fixef,
+  digits = 4,
+  caption = "Estimated fixed effects (linear model)"
+  ) 
+```
+The final model chosen was a linear mean model with random intercepts and an exponential residual correlation + nugget effect.
+
+Table 3 shows the estimated fixed effects from this model.
+
+### Fixed effect trajectories
+
+```{r fitted_trajectories, fig.cap = "Fitted Marginal Mean Curves", fig.width = 6, fig.height = 3.5}
+t_grid <- tibble::tibble(
+  day_yr = seq(min(dat_main$day_yr), max(dat_main$day_yr), length.out = 200)
+) %>%
+  dplyr::mutate(t_star = day_yr - t_bar)
+
+t_grid$mu_cubic <- predict(fit_cubic_best, newdata = t_grid, level = 0)
+t_grid$mu_linear <- predict(fit_linear_best, newdata = t_grid, level = 0)
+
+ggplot(dat_main, aes(x = day_yr, y = log_bili)) +
+  geom_point(alpha = 0.10) +
+  geom_line(data = t_grid, aes(y = mu_cubic, color = "Cubic mean"), linewidth = 1.1) +
+  geom_line(data = t_grid, aes(y = mu_linear, color = "Linear mean"), linewidth = 1.1, linetype = 3) +
+  labs(
+    title = "log(Bilirubin) over follow-up time",
+    x = "Follow-up time (years since baseline)",
+    y = "log(bilirubin) (mg/dL)",
+    color = "Mean model"
+  ) +
+  theme_bw(base_size = 12) +
+  theme(legend.position = "bottom")
+```
+\FloatBarrier
+
+Figure 4 shows the fitted marginal mean curves for both the linear and cubic models over the follow-up period.
+Both the linear and cubic fitted marginal mean curves show that log(bilirubin) increases over time. The cubic curve bends slightly at later follow-up times compared to the linear fit, but the two curves are similar for most of the observed time range
+
+## Diagnostics
+
+```{r diagnostic sanity check, fig.width = 6, fig.height = 3.7}
+## sanity checks
+stopifnot(nrow(dat_main) == length(fitted(fit_linear_best, level = 0)))
+stopifnot(nrow(dat_main) == length(resid(fit_linear_best, type = "normalized")))
+
+dat_diag <- dat_main %>%
+  mutate(
+    fit_marg = fitted(fit_linear_best, level = 0),
+    res_norm = resid(fit_linear_best, type = "normalized")
+  )
+
+summary(dat_diag$res_norm)
+```
+
+```{r diag_plot, fig.cap= "Diagnostic Plots", fig.width = 6, fig.height = 3.7}
+par(mfrow = c(2, 2))
+
+plot(dat_diag$fit_marg, dat_diag$res_norm,
+pch = 16, cex = 0.5,
+xlab = "Fitted values (marginal)",
+ylab = "Normalized residuals",
+main = "Residuals vs fitted")
+abline(h = 0, lty = 2)
+
+qqnorm(dat_diag$res_norm, main = "Normal Q–Q plot")
+qqline(dat_diag$res_norm)
+
+acf(dat_diag$res_norm, main = "ACF of normalized residuals")
+
+plot(dat_diag$day_yr, dat_diag$res_norm,
+pch = 16, cex = 0.5,
+xlab = "Follow-up time (years since baseline)",
+ylab = "Normalized residuals",
+main = "Residuals vs time")
+abline(h = 0, lty = 2)
+```
+The summary statistics for the normalized residuals showed a mean close to 0, with values ranging from –3.974 to 4.856.
+
+Figure 5 shows the diagnostic plots for the selected model:
+
+1. Residuals vs fitted values show mild heteroskedasticity.
+2. Normal Q–Q plot shows that the tails deviate from normality.
+3. ACF of normalized residuals shows much less autocorrelation compared to the marginal model.
+4. Residuals vs time show no strong remaining time trends.
+
+# Discussion 
+We explored the longitudinal profiles of log-transformed serum bilirubin in patients with primary biliary cirrhosis, employing mixed-effects models, with varying marginal mean and within-subject dependence structures, in order to determine the best-fitting models. Preliminary exploratory analyses indicated significant heterogeneity in baseline bilirubin levels along with serial correlation in repeated measurements within subjects. Strong lag-1 residual correlation and a slowly decaying autocorrelation under a marginal linear model suggested the need for models containing explicit within-subject dependence rather than an independent-error assumptions.
+
+Comparing models with a cubic marginal mean, we found that accounting for both subject-specific random intercepts and continuous-time residual correlation represented an improvement in model fit compared to less complex alternatives. The random-intercept model with exponential residual correlation and a nugget effect had the lowest AIC of the three, suggesting that both ongoing within-subject correlation and variability at the level of measurement are critical components in the data. Models with only independent errors or random intercepts did not fully capture the dependence in the longitudinal bilirubin measurements.
+
+When the marginal mean structures were compared using the selected dependence model, the likelihood ratio test comparing the cubic time trend to the linear time trend was not statistically significant, and the linear marginal mean was therefore kept The cubic model, although less constrained, revealed a curve with an upward trend for most follow-up times, similar to the linear model. This implies that, for these data, a simple linear time effect may be sufficient to summarize the average log(bilirubin) trajectory when within-subject dependence is modeled appropriately.
+
+The final model selected captures the following three key features of the data: Differences in baseline bilirubin levels across subjects, represented by a random intercept; serial correlation in repeated measurements over time, expressed as exponential correlation; and extra observation-level variability, modeled as a nugget effect. Diagnostic plots of this model indicate better residual behavior than simpler models, with less autocorrelation and no strong systematic pattern over time, supporting the effectiveness of this model.
+
+There are some limitations to consider. After the filtration, only patients with D-penicillamine treatment were left; hence, it was not possible to study the effects of treatment or the interaction between treatment and time. We also used time as the only predictor in our model; incorporation of disease severity or other clinical information could further enhance the precision of the estimated trends.
+
+In a nutshell, the current study shows that careful exploratory analysis and thoughtful model comparison help choose the right ways of describing both average trends and within-person patterns in longitudinal data. The findings emphasize the need to consider serial correlation and patient differences while modeling repeated biomarker measurements in chronic diseases like primary biliary cirrhosis.
