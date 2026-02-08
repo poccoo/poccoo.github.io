@@ -22,7 +22,7 @@ author: Yixin Zheng
 navbar-links:
   Resume: "resume"
   About Me: "aboutme"
-  Stat Reports: “reports”
+  Stat Reports: "reports"
 
 ################
 # --- Logo --- #
@@ -268,4 +268,3 @@ plugins:
 
 # Beautiful Jekyll / Dean Attali
 # 2fc73a3a967e97599c9763d05e564189
-

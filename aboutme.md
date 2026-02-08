@@ -1,7 +1,7 @@
 ---
 layout: page
 title: About Me
-Columbia University Biostat Grat
+subtitle: Columbia University Biostat Grad
 ---
 
 ## About Me
@@ -27,7 +27,7 @@ I currently work as a **Research Assistant** at Columbia University / NYSPI, whe
 - Data cleaning, transformation, and analysis in **R and Python**  
 - Communicating statistical findings to multidisciplinary teams
 
-Previously, I worked as a **Laboratory Assistant** at the Food Science and Processing Research Center, Shenzhen University, where I gained hands-on ***wet-lab experience**. My work included improving **soybean protein extraction** protocols and conducting **comparative protein analysis** using **Ion Exchange HPLC (IEX-HPLC)**, reinforcing my familiarity with experimental design, data collection, and laboratory workflows.
+Previously, I worked as a **Laboratory Assistant** at the Food Science and Processing Research Center, Shenzhen University, where I gained **hands-on wet-lab experience**. My work included improving **soybean protein extraction** protocols and conducting **comparative protein analysis** using **Ion Exchange HPLC (IEX-HPLC)**, reinforcing my familiarity with experimental design, data collection, and laboratory workflows.
 
 In addition to academic research, I have gained **industry exposure through healthcare consulting (IQVIA)** and data-focused roles, where I worked with structured, real-world datasets under practical constraints such as data quality, timelines, and stakeholder needs. These experiences strengthened my ability to translate quantitative analyses into **actionable insights**.
 
@@ -37,7 +37,7 @@ In addition to academic research, I have gained **industry exposure through heal
 
 ## Technical Skills & Certification
 
-I have experience across both **dry-lab and wet-lab** settings. On the computational side, I am proficient in **R, Python, SQL, and SAS, **and can build end-to-end analytical workflows from raw data to reporting and visualization.
+I have experience across both **dry-lab and wet-lab** settings. On the computational side, I am proficient in **R, Python, SQL, and SAS** and can build end-to-end analytical workflows from raw data to reporting and visualization.
 
 I hold both **SAS Base and SAS Advanced Certifications**, and I am comfortable using **SAS in regulated or industry-standard environments**, particularly for data manipulation, statistical analysis, and reporting.
 
