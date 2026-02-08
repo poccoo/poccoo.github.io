@@ -2,7 +2,7 @@
 layout: post
 title: Graphical Methods Final Project
 subtitle: Gene network comparison between asthma and normal samples
-cover-img: /assets/reports/graphical-methods/graphical_methods-cover.png
+cover-img: /assets/img/graphical-methods-cover.png
 tags: [Graphical Methods, Gene Network, FastGGM, Graphical Lasso]
 comments: true
 mathjax: true
