@@ -69,9 +69,9 @@ permalink: /skills/
 
   .wetlab-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-    gap: 14px;
-    margin-top: 14px;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 16px;
+    margin-top: 18px;
   }
 
   .wetlab-card {
