@@ -48,7 +48,7 @@ For exploratory data analysis, we
 
 ### Mean Structure
 
-Let \(Y_{ij}\) denote \(\log(\text{bilirubin})\) for subject \(i\) measured at follow-up time \(t_{ij}\) (years since baseline).
+Let $Y_{ij}$ denote \(\log(\text{bilirubin})\) for subject $i$ measured at follow-up time $t_{ij}$ (years since baseline).
 
 We center time at the sample mean, 
 $$t^*_{ij} = t_{ij} - \bar t$$.
@@ -82,8 +82,9 @@ Dependence structures were compared under the cubic mean model using maximum lik
 The null and alternative hypotheses are
 $$H_0:\ \beta_2=\beta_3=0 \quad \text{(linear mean)}, \qquad H_A:\ (\beta_2,\beta_3)\neq(0,0) \quad \text{(cubic mean)}$$
 
-The likelihood ratio test statistic is
-$$\Lambda = 2\left\{\ell(\widehat{\theta}_{\text{cubic}}) - \ell(\widehat{\theta}_{\text{linear}})\right\} \sim \chi^2_{2} \quad \text{under } H_0.$$
+The likelihood ratio test statistic is:
+
+$$\Lambda = 2\left\{\ell(\widehat{\theta}_{\text{cubic}}) - \ell(\widehat{\theta}_{\text{linear}})\right\} \sim \chi^2_{2} \quad \text{under } H_0$$
 
 ## Diagnostics
 
@@ -153,7 +154,7 @@ In the cubic mean model, six possible dependence structures were fitted using ma
 The model with the lowest AIC was: Random intercept + exponential residual correlation with nugget effect (RI + Exp + nugget) (AIC = 1328.32, logLik = –656.16)
 All other candidate structures had higher AIC values, including the random intercept + random slope model and the random intercept + CAR(1) model.
 
-Let \(Y_{ki}=\log(\text{bili}_{ki})\) be serum bilirubin for subject \(k\) at visit \(i\), with centered time
+Let $(Y_{ki}=\log(\text{bili}_{ki})$ be serum bilirubin for subject \(k\) at visit \(i\), with centered time
 $$t^*_{ki}=t_{ki}-\bar t.$$
 
 The fitted model is
