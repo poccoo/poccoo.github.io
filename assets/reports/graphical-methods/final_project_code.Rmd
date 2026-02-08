@@ -1,0 +1,618 @@
+---
+title: "final project"
+author: "Yixin Zheng"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+library(data.table)
+library(dplyr)
+library(stringr)
+library(tidyr)
+library(ggplot2)
+library(igraph)
+library(huge)
+library(FastGGM)
+
+out_dir  <- path.expand("~/Desktop/graphical")
+expr_file <- file.path(out_dir, "Normalized_expression.txt")
+sdrf_file <- file.path(out_dir, "E-MTAB-1425.sdrf.txt")
+if (!dir.exists(out_dir)) dir.create(out_dir, recursive = TRUE)
+
+P_GENES <- 800
+TARGET_EDGE_COUNT <- 800 
+N_LAMBDA <- 30 
+HEATMAP_P <- 100
+FASTGGM_FDR_ALPHA <- 0.10
+GLASSO_TOL <- 0 
+B_PERM <- 200
+
+set.seed(12345)
+```
+
+```{r helper}
+safe_make_unique_names <- function(df) {
+  names(df) <- make.names(names(df), unique = TRUE)
+  df
+}
+
+count_undirected_edges <- function(adj01) {
+  sum(adj01[upper.tri(adj01)] != 0)
+}
+
+read_expr_matrix <- function(expr_file) {
+  expr <- data.table::fread(expr_file, data.table = FALSE, showProgress = FALSE)
+  if (ncol(expr) < 3) stop("Input error.")
+  
+  probe_col <- expr[[1]]
+  Xraw <- as.matrix(expr[, -1, drop = FALSE])
+  if (nrow(Xraw) >= 2) {
+    row2 <- Xraw[2, , drop = TRUE]
+    if (any(grepl("RMA", row2, ignore.case = TRUE))) {
+      sample_ids <- as.character(Xraw[1, ])
+      Xraw <- Xraw[-c(1, 2), , drop = FALSE]
+      probe_col <- probe_col[-c(1, 2)]
+      if (all(!is.na(sample_ids)) && mean(nchar(sample_ids)) > 1) {
+        colnames(Xraw) <- sample_ids
+      }
+    }
+  }
+
+  suppressWarnings(mode(Xraw) <- "numeric")
+
+  bad_rate <- colMeans(is.na(Xraw))
+  if (max(bad_rate) > 0.01) stop("Input error.")
+  rownames(Xraw) <- probe_col
+  Xraw
+}
+
+read_sdrf <- function(sdrf_file) {
+  sdrf <- data.table::fread(sdrf_file, data.table = FALSE, showProgress = FALSE)
+  sdrf <- safe_make_unique_names(sdrf)
+
+  source_col  <- grep("Source.Name", names(sdrf), ignore.case = TRUE, value = TRUE)[1]
+  if (is.na(source_col)) source_col <- grep("Source", names(sdrf), ignore.case = TRUE, value = TRUE)[1]
+  disease_col <- grep("disease", names(sdrf), ignore.case = TRUE, value = TRUE)[1]
+  if (is.na(source_col) || is.na(disease_col)) stop("Input error.")
+
+  out <- sdrf %>%
+    transmute(
+      source_name = as.character(.data[[source_col]]),
+      disease_raw = as.character(.data[[disease_col]])
+    )
+
+  out$disease2 <- case_when(
+    str_detect(str_to_lower(out$disease_raw), "asthma") ~ "asthma",
+    str_detect(str_to_lower(out$disease_raw), "normal|healthy|control") ~ "normal",
+    TRUE ~ "other"
+  )
+  out
+}
+
+match_samples <- function(expr_cols, source_names) {
+  expr_cols <- as.character(expr_cols)
+  src <- as.character(source_names)
+  idx <- match(src, expr_cols)
+
+  if (anyNA(idx)) {
+    expr_strip <- gsub("_sample$", "", expr_cols, ignore.case = TRUE)
+    src_strip  <- gsub("_sample$", "", src, ignore.case = TRUE)
+    idx2 <- match(src_strip, expr_strip)
+    idx[is.na(idx)] <- idx2[is.na(idx)]
+  }
+
+  if (anyNA(idx)) {
+    idx3 <- sapply(src, function(s) {
+      w <- which(expr_cols == s | startsWith(expr_cols, s) | startsWith(s, expr_cols))
+      if (length(w) == 0) NA_integer_ else w[1]
+    })
+    idx[is.na(idx)] <- idx3[is.na(idx)]
+  }
+  idx
+}
+
+select_top_var_genes <- function(expr_matrix, p_keep) {
+  v <- apply(expr_matrix, 1, var, na.rm = TRUE)
+  ord <- order(v, decreasing = TRUE)
+  rownames(expr_matrix)[ord[seq_len(min(p_keep, length(ord)))]]
+}
+
+save_gg <- function(p, filename, w = 7, h = 5) {
+  ggsave(filename = file.path(out_dir, filename), plot = p, width = w, height = h)
+}
+
+edge_list_from_adj <- function(adj01) {
+  g <- igraph::graph_from_adjacency_matrix(adj01, mode = "undirected", diag = FALSE)
+  el <- igraph::as_data_frame(g, what = "edges") %>%
+    transmute(
+      a = as.character(.data$from),
+      b = as.character(.data$to),
+      edge = ifelse(a < b, paste(a, b, sep = "--"), paste(b, a, sep = "--"))
+    )
+  unique(el$edge)
+}
+
+venn_counts <- function(set1, set2) {
+  inter <- length(intersect(set1, set2))
+  only1 <- length(setdiff(set1, set2))
+  only2 <- length(setdiff(set2, set1))
+  list(only1 = only1, only2 = only2, inter = inter)
+}
+
+plot_network <- function(adj01, title, filename,
+                         node_names,
+                         max_nodes = 200,
+                         width = 2000, height = 2000, res = 300) {
+
+  g0 <- igraph::graph_from_adjacency_matrix(adj01, mode = "undirected", diag = FALSE)
+  if (igraph::ecount(g0) == 0) {
+    message("Skip plotting (no edges): ", title)
+    return(invisible(NULL))
+  }
+
+  comps <- igraph::components(g0)
+  keep_v0 <- which(comps$membership == which.max(comps$csize))
+  g <- igraph::induced_subgraph(g0, vids = keep_v0)
+
+  if (igraph::ecount(g) == 0 || igraph::vcount(g) < 2) {
+    message("Skip plotting (giant component too small): ", title)
+    return(invisible(NULL))
+  }
+
+  deg <- igraph::degree(g)
+  keep2 <- seq_len(igraph::vcount(g))
+  if (igraph::vcount(g) > max_nodes) {
+    keep2 <- order(deg, decreasing = TRUE)[1:max_nodes]
+    g <- igraph::induced_subgraph(g, vids = keep2)
+    deg <- igraph::degree(g)
+  }
+
+  keep_final0 <- keep_v0[keep2]
+  igraph::V(g)$name <- node_names[keep_final0]
+
+  jpeg(file.path(out_dir, filename), width = width, height = height, res = res)
+  par(mar = c(0, 0, 2, 0))
+  plot(
+    g,
+    layout = igraph::layout_with_fr(g),
+    vertex.size = pmax(4, sqrt(deg) * 2),
+    vertex.label = NA,
+    main = title
+  )
+  dev.off()
+}
+
+prec_to_pcor <- function(K) {
+  D <- sqrt(diag(K))
+  P <- -K / (D %o% D)
+  diag(P) <- 1
+  P
+}
+
+adj_topK_from_pcor <- function(P, K_edges) {
+  p <- ncol(P)
+  ut <- upper.tri(P)
+  vals <- abs(P)[ut]
+  ord <- order(vals, decreasing = TRUE)
+  k <- min(K_edges, length(ord))
+  keep <- ord[seq_len(k)]
+  ut_idx <- which(ut)[keep]
+  
+  A <- matrix(0L, p, p)
+  A[ut_idx] <- 1L
+  A <- A + t(A)
+  diag(A) <- 0L
+  A
+}
+
+adj_to_edges <- function(adj01) {
+  ut <- upper.tri(adj01)
+  idx <- which(adj01[ut] != 0)
+  ij <- which(ut, arr.ind = TRUE)[idx, , drop = FALSE]
+  data.frame(i = ij[, 1], j = ij[, 2])
+}
+
+top_hubs_by_degree <- function(adj01, m = 30) {
+  deg <- rowSums(adj01 != 0)
+  order(deg, decreasing = TRUE)[1:min(m, length(deg))]
+}
+```
+
+```{r fastggm}
+# FastGGM: FDR graph and Top-K graph
+fastggm_learn_graphs <- function(out_fastggm, alpha_fdr = 0.10, target_edges = 800) {
+  pmat <- out_fastggm$p_partialCor
+  if (is.null(pmat)) stop("Input error.")
+
+  diag(pmat) <- NA_real_
+  ut <- upper.tri(pmat)
+
+  pvec <- pmat[ut]
+  ok <- is.finite(pvec)
+  pvec_ok <- pvec[ok]
+  if (length(pvec_ok) == 0) stop("Input error.")
+
+  ut_idx_all <- which(ut)
+  ut_idx_ok  <- ut_idx_all[ok]
+
+  qvec_ok <- p.adjust(pvec_ok, method = "BH")
+  keep_fdr <- which(qvec_ok <= alpha_fdr)
+  picked_fdr <- if (length(keep_fdr) > 0) ut_idx_ok[keep_fdr] else integer(0)
+
+  adj_from_picked <- function(picked, p) {
+    A <- matrix(0L, p, p)
+    if (length(picked) > 0) A[picked] <- 1L
+    A <- A + t(A)
+    diag(A) <- 0L
+    A
+  }
+
+  p <- nrow(pmat)
+  adj_fdr <- adj_from_picked(picked_fdr, p)
+  colnames(adj_fdr) <- colnames(pmat); rownames(adj_fdr) <- rownames(pmat)
+
+  ord <- order(pvec_ok, decreasing = FALSE)
+  k <- min(target_edges, length(ord))
+  picked_topk <- ut_idx_ok[ord[seq_len(k)]]
+  adj_topk <- adj_from_picked(picked_topk, p)
+  colnames(adj_topk) <- colnames(pmat); rownames(adj_topk) <- rownames(pmat)
+
+  list(
+    adj_fdr = adj_fdr,
+    adj_topk = adj_topk,
+    edges_fdr = count_undirected_edges(adj_fdr),
+    edges_topk = count_undirected_edges(adj_topk),
+    alpha_fdr = alpha_fdr,
+    target_edges = target_edges
+  )
+}
+```
+
+```{r glasso}
+# Glasso：density matching and adjacency
+glasso_fit_pick_target <- function(X_np, target_edges, nlambda = 30, tol = 0) {
+  fit <- huge::huge(X_np, method = "glasso", nlambda = nlambda)
+
+  edge_counts <- sapply(fit$icov, function(K) {
+    A <- (abs(K) > tol) * 1L
+    diag(A) <- 0L
+    count_undirected_edges(A)
+  })
+
+  k_best <- which.min(abs(edge_counts - target_edges))
+  list(fit = fit, 
+       edge_counts = edge_counts, 
+       k_best = k_best)
+}
+```
+
+```{r permutation}
+# Permutation test
+perm_diff_edges_glasso_commonlambda <- function(X_asthma, X_normal, lambda_common, E, B = 200) {
+  X_all <- rbind(X_asthma, X_normal)
+  nA <- nrow(X_asthma)
+  nN <- nrow(X_normal)
+  n  <- nA + nN
+
+  if (nrow(X_all) != n) stop("Input error.")
+  if (ncol(X_all) != ncol(X_asthma)) stop("Input error.")
+  if (nrow(E) == 0) stop("Input error.")
+
+  m <- nrow(E)
+  deltas <- matrix(NA_real_, nrow = B, ncol = m)
+
+for (b in seq_len(B)) {
+    perm <- sample.int(n, size = n, replace = FALSE)
+    A_idx <- perm[1:nA]
+    N_idx <- perm[(nA + 1):n]
+
+    XA <- X_all[A_idx, , drop = FALSE]
+    XN <- X_all[N_idx, , drop = FALSE]
+
+    fitA <- huge::huge(XA, method = "glasso", lambda = lambda_common, nlambda = 1)
+    fitN <- huge::huge(XN, method = "glasso", lambda = lambda_common, nlambda = 1)
+
+    PA <- prec_to_pcor(fitA$icov[[1]])
+    PN <- prec_to_pcor(fitN$icov[[1]])
+
+    deltas[b, ] <- PA[cbind(E$i, E$j)] - PN[cbind(E$i, E$j)]
+    if (b %% 25 == 0) message("perm ", b, "/", B)
+  }
+
+  deltas
+}
+
+p_emp_from_perm <- function(delta_perm_mat, delta_obs, B) {
+  sapply(seq_along(delta_obs), function(k) {
+    (sum(abs(delta_perm_mat[, k]) >= abs(delta_obs[k]), na.rm = TRUE) + 1) / (B + 1)
+  })
+}
+```
+
+```{r workflow}
+expr_matrix <- read_expr_matrix(expr_file)
+cat("Expression matrix:", nrow(expr_matrix), "features x", ncol(expr_matrix), "samples.\n")
+
+sdrf2_annotation <- read_sdrf(sdrf_file)
+cat("SDRF rows:", nrow(sdrf2_annotation), "\n")
+cat("Disease counts (cleaned):\n"); print(table(sdrf2_annotation$disease2))
+idx <- match_samples(colnames(expr_matrix), sdrf2_annotation$source_name)
+
+keep_rows <- which(sdrf2_annotation$disease2 %in% c("asthma","normal") & !is.na(idx))
+expr_keep_cols <- idx[keep_rows]
+
+# reliability checks
+if (length(expr_keep_cols) != length(unique(expr_keep_cols))) stop("Input error.")
+
+expr_matrix <- expr_matrix[, expr_keep_cols, drop = FALSE]
+sdrf2_annotation <- sdrf2_annotation[keep_rows, , drop = FALSE]
+stopifnot(ncol(expr_matrix) == nrow(sdrf2_annotation))
+
+cat("Matched asthma/normal samples:", ncol(expr_matrix), "\n")
+print(table(sdrf2_annotation$disease2))
+
+top_genes <- select_top_var_genes(expr_matrix, P_GENES)
+expr_matrix <- expr_matrix[top_genes, , drop = FALSE]
+cat("After variance filter:", nrow(expr_matrix), "genes\n")
+
+top_heat <- select_top_var_genes(expr_matrix, HEATMAP_P)
+expr_heat <- expr_matrix[top_heat, , drop = FALSE]
+
+X_np <- t(expr_matrix)  # n x p
+grp <- sdrf2_annotation$disease2
+
+mu  <- colMeans(X_np, na.rm = TRUE)
+sdv <- apply(X_np, 2, sd, na.rm = TRUE)
+sdv[sdv == 0 | !is.finite(sdv)] <- 1
+
+X_all_scaled <- sweep(sweep(X_np, 2, mu, "-"), 2, sdv, "/")
+
+X_asthma <- X_all_scaled[grp == "asthma", , drop = FALSE]
+X_normal <- X_all_scaled[grp == "normal", , drop = FALSE]
+
+cat("Dims asthma:", nrow(X_asthma), "x", ncol(X_asthma), "\n")
+cat("Dims normal:", nrow(X_normal), "x", ncol(X_normal), "\n")
+
+# EDA plots
+cor_mat <- cor(t(expr_heat), use = "pairwise.complete.obs")
+cor_df <- as.data.frame(as.table(cor_mat))
+names(cor_df) <- c("g1", "g2", "cor")
+p_cor <- ggplot(cor_df, aes(x = g1, y = g2, fill = cor)) +
+  geom_tile() +
+  theme_bw(base_size = 9) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
+  labs(title = paste0("Correlation heatmap (top ", HEATMAP_P, " genes)"), x = "", y = "")
+save_gg(p_cor, "eda_correlation_heatmap_top100.jpg", w = 8, h = 7)
+```
+
+```{r method 1}
+# Method 1: FastGGM graph learning + density match
+out_fast_asthma <- FastGGM::FastGGM(X_asthma)
+out_fast_normal <- FastGGM::FastGGM(X_normal)
+
+fast_as <- fastggm_learn_graphs(out_fast_asthma,
+                               alpha_fdr = FASTGGM_FDR_ALPHA,
+                               target_edges = TARGET_EDGE_COUNT)
+fast_no <- fastggm_learn_graphs(out_fast_normal,
+                               alpha_fdr = FASTGGM_FDR_ALPHA,
+                               target_edges = TARGET_EDGE_COUNT)
+
+adj_fast_asthma_fdr  <- fast_as$adj_fdr
+adj_fast_normal_fdr  <- fast_no$adj_fdr
+adj_fast_asthma_topk <- fast_as$adj_topk
+adj_fast_normal_topk <- fast_no$adj_topk
+
+cat("FastGGM edges (FDR) asthma:", fast_as$edges_fdr, "\n")
+cat("FastGGM edges (FDR) normal:", fast_no$edges_fdr, "\n")
+cat("FastGGM edges (TopK) asthma:", fast_as$edges_topk, "\n")
+cat("FastGGM edges (TopK) normal:", fast_no$edges_topk, "\n")
+```
+
+```{r method 2}
+# Method 2: Glasso: density match
+gl_asthma <- glasso_fit_pick_target(X_asthma, TARGET_EDGE_COUNT, nlambda = N_LAMBDA, tol = GLASSO_TOL)
+gl_normal <- glasso_fit_pick_target(X_normal, TARGET_EDGE_COUNT, nlambda = N_LAMBDA, tol = GLASSO_TOL)
+
+cat("Best glasso index (asthma):", gl_asthma$k_best, "\n")
+cat("Best glasso index (normal):", gl_normal$k_best, "\n")
+
+K_as <- gl_asthma$fit$icov[[gl_asthma$k_best]]
+K_no <- gl_normal$fit$icov[[gl_normal$k_best]]
+
+P_as <- prec_to_pcor(K_as)
+P_no <- prec_to_pcor(K_no)
+
+adj_glasso_asthma <- adj_topK_from_pcor(P_as, TARGET_EDGE_COUNT)
+adj_glasso_normal <- adj_topK_from_pcor(P_no, TARGET_EDGE_COUNT)
+
+cat("Glasso edges asthma:", count_undirected_edges(adj_glasso_asthma), "\n")
+cat("Glasso edges normal:", count_undirected_edges(adj_glasso_normal), "\n")
+
+df_gl <- rbind(
+  data.frame(idx = seq_along(gl_asthma$edge_counts), edges = gl_asthma$edge_counts, group = "asthma"),
+  data.frame(idx = seq_along(gl_normal$edge_counts), edges = gl_normal$edge_counts, group = "normal")
+)
+p_gl_path <- ggplot(df_gl, aes(x = idx, y = edges, linetype = group)) +
+  geom_line() +
+  geom_hline(yintercept = TARGET_EDGE_COUNT) +
+  theme_bw(base_size = 12) +
+  labs(title = "Glasso tuning path: edge count vs lambda index",
+       x = "Lambda index (huge path)", y = "Undirected edge count")
+save_gg(p_gl_path, "glasso_edgecount_path.jpg", w = 7, h = 5)
+```
+
+```{r compare}
+E_fast_as <- edge_list_from_adj(adj_fast_asthma_topk)
+E_fast_no <- edge_list_from_adj(adj_fast_normal_topk)
+vc_fast <- venn_counts(E_fast_as, E_fast_no)
+
+E_gl_as <- edge_list_from_adj(adj_glasso_asthma)
+E_gl_no <- edge_list_from_adj(adj_glasso_normal)
+vc_gl <- venn_counts(E_gl_as, E_gl_no)
+
+overlap_tab <- data.frame(
+  method = c("FastGGM (TopK)", "Glasso (Top|pcor|)"),
+  E_asthma = c(length(E_fast_as), length(E_gl_as)),
+  E_normal = c(length(E_fast_no), length(E_gl_no)),
+  intersection = c(vc_fast$inter, vc_gl$inter),
+  symmetric_diff = c(vc_fast$only1 + vc_fast$only2, vc_gl$only1 + vc_gl$only2)
+)
+write.csv(overlap_tab, file.path(out_dir, "edge_overlap_summary.csv"), row.names = FALSE)
+
+if (exists("adj_fast_asthma_fdr") && exists("adj_fast_normal_fdr")) {
+  E_fast_as_fdr <- edge_list_from_adj(adj_fast_asthma_fdr)
+  E_fast_no_fdr <- edge_list_from_adj(adj_fast_normal_fdr)
+  vc_fast_fdr <- venn_counts(E_fast_as_fdr, E_fast_no_fdr)
+
+  overlap_fastggm_fdr <- data.frame(
+    method = "FastGGM (BH-FDR)",
+    E_asthma = length(E_fast_as_fdr),
+    E_normal = length(E_fast_no_fdr),
+    intersection = vc_fast_fdr$inter,
+    symmetric_diff = vc_fast_fdr$only1 + vc_fast_fdr$only2,
+    alpha_fdr = FASTGGM_FDR_ALPHA
+  )
+  write.csv(overlap_fastggm_fdr, file.path(out_dir, "edge_overlap_fastggm_fdr.csv"), row.names = FALSE)
+}
+
+degree_df <- function(adj01, method, group) {
+  g <- igraph::graph_from_adjacency_matrix(adj01, mode = "undirected", diag = FALSE)
+  data.frame(degree = igraph::degree(g), method = method, group = group)
+}
+
+df_deg <- rbind(
+  degree_df(adj_fast_asthma_topk, "FastGGM (TopK)", "asthma"),
+  degree_df(adj_fast_normal_topk, "FastGGM (TopK)", "normal"),
+  degree_df(adj_glasso_asthma, "Glasso (Top｜pcor｜)", "asthma"),
+  degree_df(adj_glasso_normal, "Glasso (Top｜pcor｜)", "normal")
+)
+
+p_deg <- ggplot(df_deg, aes(x = degree, linetype = group)) +
+  geom_freqpoly(binwidth = 1) +
+  facet_wrap(~ method, scales = "free_y") +
+  theme_bw(base_size = 12) +
+  labs(title = "Degree distribution (asthma vs normal; density-matched graphs)",
+       x = "Degree", y = "Count")
+save_gg(p_deg, "degree_distribution_by_method.jpg", w = 9, h = 4.5)
+
+plot_network(adj_fast_asthma_topk,
+             "FastGGM (TopK) network (asthma) — top-degree subgraph",
+             "network_fastggm_asthma.jpg", node_names = colnames(X_asthma))
+
+plot_network(adj_fast_normal_topk,
+             "FastGGM (TopK) network (normal) — top-degree subgraph",
+             "network_fastggm_normal.jpg", node_names = colnames(X_normal))
+
+plot_network(adj_glasso_asthma,
+             "Glasso (Top pcor) network (asthma) — top-degree subgraph",
+             "network_glasso_asthma.jpg", node_names = colnames(X_asthma))
+
+plot_network(adj_glasso_normal,
+             "Glasso (Top pcor) network (normal) — top-degree subgraph",
+             "network_glasso_normal.jpg", node_names = colnames(X_normal))
+```
+
+```{r glasso permutation}
+E_union <- unique(rbind(
+  adj_to_edges(adj_glasso_asthma),
+  adj_to_edges(adj_glasso_normal)
+))
+if (nrow(E_union) == 0) stop("Input error.")
+
+hub_as <- top_hubs_by_degree(adj_glasso_asthma, m = 30)
+hub_no <- top_hubs_by_degree(adj_glasso_normal, m = 30)
+hubs <- union(hub_as, hub_no)
+
+E_test <- E_union[E_union$i %in% hubs | E_union$j %in% hubs, , drop = FALSE]
+
+E_test_type <- "hub-filtered"
+if (nrow(E_test) == 0) {
+  E_test <- E_union
+  E_test_type <- "union"
+}
+
+pc_as <- P_as[cbind(E_test$i, E_test$j)]
+pc_no <- P_no[cbind(E_test$i, E_test$j)]
+delta_obs <- pc_as - pc_no
+
+lambda_as <- gl_asthma$fit$lambda[gl_asthma$k_best]
+lambda_no <- gl_normal$fit$lambda[gl_normal$k_best]
+
+delta_perm_as <- perm_diff_edges_glasso_commonlambda(
+  X_asthma, X_normal, lambda_common = lambda_as, E = E_test, B = B_PERM
+)
+delta_perm_no <- perm_diff_edges_glasso_commonlambda(
+  X_asthma, X_normal, lambda_common = lambda_no, E = E_test, B = B_PERM
+)
+
+p_emp_as <- p_emp_from_perm(delta_perm_as, delta_obs, B_PERM)
+p_emp_no <- p_emp_from_perm(delta_perm_no, delta_obs, B_PERM)
+
+p_emp <- pmax(p_emp_as, p_emp_no)
+q_fdr <- p.adjust(p_emp, method = "BH")
+
+diff_edges_glasso <- data.frame(
+  gene_i = colnames(X_asthma)[E_test$i],
+  gene_j = colnames(X_asthma)[E_test$j],
+  pcor_asthma = pc_as,
+  pcor_normal = pc_no,
+  delta = delta_obs,
+  p_emp_lambda_as = p_emp_as,
+  p_emp_lambda_no = p_emp_no,
+  p_emp = p_emp,
+  q_fdr = q_fdr
+) %>%
+  dplyr::arrange(.data$q_fdr, .data$p_emp)
+
+write.csv(diff_edges_glasso, file.path(out_dir, "diff_edges_glasso_perm.csv"), row.names = FALSE)
+
+cat("\nGlasso differential edges saved: diff_edges_glasso_perm.csv\n")
+cat("E_test type:", E_test_type, "\n")
+cat("Number of tested edges:", nrow(E_test), "\n")
+cat("Top hits (q_fdr <= 0.1):",
+    sum(diff_edges_glasso$q_fdr <= 0.1, na.rm = TRUE), "\n")
+cat("Min p_emp:", min(diff_edges_glasso$p_emp, na.rm = TRUE), "\n")
+cat("Min q_fdr:", min(diff_edges_glasso$q_fdr, na.rm = TRUE), "\n")
+```
+
+```{r fastggm descriptive}
+get_fast_partialcor <- function(out_fast) {
+  if (!is.null(out_fast$partialCor)) return(out_fast$partialCor)
+  if (!is.null(out_fast$partialcor)) return(out_fast$partialcor)
+  if (!is.null(out_fast$pcor)) return(out_fast$pcor)
+  stop("Input error.")
+}
+
+Pc_fast_as <- get_fast_partialcor(out_fast_asthma)
+Pc_fast_no <- get_fast_partialcor(out_fast_normal)
+
+E_fast_test <- unique(rbind(
+  adj_to_edges(adj_fast_asthma_topk),
+  adj_to_edges(adj_fast_normal_topk)
+))
+if (nrow(E_fast_test) > 0) {
+  p <- ncol(X_asthma)
+  E_fast_test <- E_fast_test[
+    E_fast_test$i >= 1 & E_fast_test$i <= p &
+    E_fast_test$j >= 1 & E_fast_test$j <= p,
+    , drop = FALSE
+  ]
+
+  pc_as_f <- Pc_fast_as[cbind(E_fast_test$i, E_fast_test$j)]
+  pc_no_f <- Pc_fast_no[cbind(E_fast_test$i, E_fast_test$j)]
+  ok <- is.finite(pc_as_f) & is.finite(pc_no_f)
+
+  diff_edges_fastggm <- data.frame(
+    gene_i = colnames(X_asthma)[E_fast_test$i[ok]],
+    gene_j = colnames(X_asthma)[E_fast_test$j[ok]],
+    pcor_asthma = pc_as_f[ok],
+    pcor_normal = pc_no_f[ok],
+    delta = pc_as_f[ok] - pc_no_f[ok]
+  ) %>%
+    dplyr::arrange(dplyr::desc(abs(.data$delta)))
+
+  write.csv(diff_edges_fastggm, file.path(out_dir, "diff_edges_fastggm_desc.csv"), row.names = FALSE)
+}
+```
+
