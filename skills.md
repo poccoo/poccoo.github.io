@@ -86,6 +86,13 @@ permalink: /skills/
   </div>
 
   <div class="skill-card">
+    <div class="skill-icon">
+      <i class="devicon-mysql-original colored" aria-hidden="true"></i>
+    </div>
+    <div class="skill-name">MySQL</div>
+  </div>
+
+  <div class="skill-card">
     <div class="skill-badge sas" aria-hidden="true">SAS</div>
     <div class="skill-name">SAS</div>
   </div>
@@ -93,8 +100,8 @@ permalink: /skills/
   <div class="skill-card">
     <img
       class="skill-icon-img"
-      src="https://cdn.simpleicons.org/ibm/1261FE"
-      alt="IBM SPSS icon">
+      src="https://commons.wikimedia.org/wiki/Special:FilePath/SPSS%20An%20IBM%20Company%20logo.svg"
+      alt="SPSS icon">
     <div class="skill-name">SPSS</div>
   </div>
 
