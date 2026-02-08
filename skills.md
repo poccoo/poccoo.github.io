@@ -86,6 +86,14 @@ permalink: /skills/
   </div>
 
   <div class="skill-card">
+    <img
+      class="skill-icon-img"
+      src="https://cdn.simpleicons.org/pytorch/EE4C2C"
+      alt="PyTorch icon">
+    <div class="skill-name">PyTorch</div>
+  </div>
+
+  <div class="skill-card">
     <div class="skill-icon">
       <i class="devicon-mysql-original colored" aria-hidden="true"></i>
     </div>
