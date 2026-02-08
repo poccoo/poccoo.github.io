@@ -35,6 +35,13 @@ permalink: /skills/
     margin-bottom: 10px;
   }
 
+  .skill-icon-img {
+    width: 44px;
+    height: 44px;
+    margin: 0 auto 10px auto;
+    display: block;
+  }
+
   .skill-badge {
     width: 44px;
     height: 44px;
@@ -53,10 +60,6 @@ permalink: /skills/
     background: #00539b;
   }
 
-  .skill-badge.spss {
-    background: #0f62fe;
-  }
-
   .skill-name {
     font-size: 16px;
     font-weight: 600;
@@ -68,10 +71,11 @@ permalink: /skills/
 
 <div class="skills-grid">
   <div class="skill-card">
-    <div class="skill-icon">
-      <i class="devicon-r-original colored" aria-hidden="true"></i>
-    </div>
-    <div class="skill-name">R</div>
+    <img
+      class="skill-icon-img"
+      src="https://cdn.simpleicons.org/rstudioide/75AADB"
+      alt="RStudio icon">
+    <div class="skill-name">RStudio</div>
   </div>
 
   <div class="skill-card">
@@ -87,7 +91,18 @@ permalink: /skills/
   </div>
 
   <div class="skill-card">
-    <div class="skill-badge spss" aria-hidden="true">SPSS</div>
+    <img
+      class="skill-icon-img"
+      src="https://cdn.simpleicons.org/ibm/1261FE"
+      alt="IBM SPSS icon">
     <div class="skill-name">SPSS</div>
+  </div>
+
+  <div class="skill-card">
+    <img
+      class="skill-icon-img"
+      src="https://cdn.simpleicons.org/cplusplus/00599C"
+      alt="C++ icon">
+    <div class="skill-name">C++</div>
   </div>
 </div>
