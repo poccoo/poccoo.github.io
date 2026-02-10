@@ -2,7 +2,7 @@
 layout: post
 title: BRAVE-AA1 and BRAVE-AA2 Phase 3 Trials, Baricitinib for Severe Alopecia Areata
 subtitle: Baricitinib for Severe Alopecia Areata
-cover-img: /assets/img/pharmaceutical-statistics-cover.png
+cover-img: /assets/img/image1.jpg
 tags: [BRAVE-AA1, BRAVE-AA2, Severe Alopecia Areata]
 comments: true
 mathjax: true
@@ -243,7 +243,3 @@ https://doi.org/10.1186/gb-2004-5-12-253
 
 Wang, Y., Qiao, J., & Fang, H. (2023). Comparison of the latest Chinese and international guidelines and consensus on the diagnosis and treatment of alopecia areata. *Chinese Journal of Dermatology*, *56*(9), 885–888.  
 https://doi.org/10.35541/cjd.20210184
-
-## Files
-
-- [Statistical Analysis Plan (PDF)]({{ '/assets/reports/pharmaceutical-statistics/final-project-1.pdf' | absolute_url }})
