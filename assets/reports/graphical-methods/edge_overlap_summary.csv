@@ -1,0 +1,3 @@
+"method","E_asthma","E_normal","intersection","symmetric_diff"
+"FastGGM (TopK)",800,800,238,1124
+"Glasso (Top|pcor|)",800,800,570,460
