@@ -1,0 +1,556 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{setspace}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{hyperref}
+\usepackage{multirow}
+\usepackage{booktabs}
+\usepackage{threeparttable}
+
+\title{Survival Analysis on Cirrhosis Clinical Trial Data}
+\author{Group 1}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section{Objective}
+The main goal of this project is to see if D-penicillamine treatment improves survival compared to a placebo in patients with primary biliary cirrhosis (PBC). The secondary goal is to identify and measure how significant baseline clinical and biochemical factors influence the risk of death. Together, these goals provide a clear picture of how effective the treatment is and what factors impact survival in PBC.
+
+\section{Background}
+
+Liver cirrhosis is a chronic condition marked by progressive liver damage, leading to complications such as ascites, hepatic encephalopathy, and eventually death. Understanding factors that influence survival can help guide treatment strategies and improve patient outcomes. In this project, we apply survival analysis techniques to a clinical trial dataset of patients with cirrhosis to identify key predictors of survival time and assess the effectiveness of treatment.
+
+\section{Dataset Overview}
+
+The dataset comes from a publicly available clinical trial on cirrhosis patients, originally hosted on Kaggle and was collected from a liver cirrhosis clinical trial dataset referred to Mayo Clinic during a ten-year interval. It contains \textbf{418 observations} with demographic, clinical, and biochemical variables. Each row represents a patient, and the primary outcome is survival status:
+
+\begin{itemize}
+    \item \textbf{Status “D”}: Death (event occurred)
+    \item \textbf{Status “C”}: Censored (patient still alive at last follow-up)
+    \item \textbf{Status “CL”}: Censored but received a liver transplant
+\end{itemize}
+
+Key variables include age (in days), treatment group (\texttt{drug}), albumin, bilirubin, prothrombin time, ascites, hepatomegaly, edema, and other lab values such as cholesterol, copper, and SGOT.
+
+\section{Data Cleaning}
+
+To ensure analysis validity, we applied several preprocessing steps:
+
+\begin{enumerate}
+    \item \textbf{Filtered to randomized trial participants}: patients with missing \texttt{drug} assignment were excluded.
+    \item \textbf{Created event indicator}: \texttt{status} values were mapped to a binary variable, where “D” = 1 and “C”/“CL” = 0.
+    \item \textbf{Converted units}: Age was transformed from days to years for easier interpretation.
+    \item \textbf{Categorical variables formatted}: Factors like \texttt{sex}, \texttt{ascites}, \texttt{hepatomegaly}, \texttt{edema} were properly converted into R factors, with \texttt{edema} treated as an ordered factor.
+    \item \textbf{Constructed complete-case dataset}: We kept only observations with complete data on key baseline variables for consistent analysis.
+\end{enumerate}
+
+
+\section{Exploratory Data Analysis (EDA)}
+
+We conducted exploratory analyses to better understand survival status distribution, and how key variables relate to patient outcomes.
+
+\begin{itemize}
+    \item \textbf{Age Distribution Across Survival Groups}:  
+    Figure~\ref{fig:eda_age} demonstrates that individuals who experienced the event (status = D) tend to be older than those in censored groups. This suggests age may be an important predictor of mortality in cirrhosis patients.
+
+    \item \textbf{Distribution of Key Numeric Variables}:  
+    Histograms in Figure~\ref{fig:eda_numeric} illustrate the substantial variability present in biochemical and demographic measures. Such heterogeneity underscores the importance of flexible modeling approaches and the need for potential transformation or normalization of skewed markers such as bilirubin.
+
+    \item \textbf{Biomarker Differences by Survival Status}:  
+    Boxplots in Figure~\ref{fig:eda_lab} show clear separation in clinical biomarkers:  
+    \begin{itemize}
+        \item Patients who died generally have \textit{higher bilirubin levels}, reflecting more severe cholestasis.
+        \item The same group shows \textit{lower albumin levels}, consistent with impaired hepatic synthetic function.
+    \end{itemize}
+    These patterns align with established clinical expectations in cirrhosis prognosis.
+
+    \item \textbf{Correlation Structure Among Continuous Variables}:  
+    The correlation heatmap (Figure~\ref{fig:eda_corr}) reveals moderate associations among laboratory variables. In particular, albumin and bilirubin demonstrate a notable negative correlation, consistent with liver disease physiology. No pairs exhibited correlations strong enough to indicate harmful multicollinearity, though relationships will be monitored in subsequent multivariable modeling.
+    
+\end{itemize}
+
+\subsection{Baseline Balance Between Treatment Groups}
+
+We assessed baseline balance between the Placebo and D-penicillamine groups using summaries of key demographic and clinical variables
+
+\subsubsection{Continuous Baseline Variables}
+
+For continuous baseline variables, 
+we compared the two treatment groups using both:
+Two-sample t-tests (for differences in mean values), 
+and Wilcoxon rank-sum tests (nonparametric robustness checks).
+The corresponding hypotheses were:
+\[
+H_0:\ \mu_{\text{Placebo}} = \mu_{\text{D-penicillamine}} 
+\qquad
+H_1:\ \mu_{\text{Placebo}} \neq \mu_{\text{D-penicillamine}}
+\]
+
+Only clinically relevant continuous baseline variables with minimal missingness were chosen ("age", "bilirubin", "albumin", "prothrombin"). Inclusion of variables such as copper or cholesterol would greatly reduce the complete-case sample size. So, following the Mayo PBC literature by Dickson, only key prognostic markers are summarized.
+
+Figure~\ref{fig:eda_baseline_cont} shows that, for these 4 key continuous baseline variables, only age has a statistically significant difference between treatment groups (t-test $p \approx 0.018$; Wilcoxon $p \approx 0.020$), 
+meaning that patients in the D-penicillamine group were slightly older at baseline. No statistically significant differences were observed for bilirubin, albumin, or prothrombin time. 
+In general, continuous variables are well balanced between treatment groups besides age. This suggests that the age might need to be adjusted for subsequent analyzes.
+
+\subsubsection{Categorical Baseline Variables}
+
+For categorical baseline variables, Group differences are evaluated using:
+
+\begin{itemize}
+    \item Pearson’s chi-squared test, when all expected cell counts were adequate
+    \item Fisher’s exact test, when sparse cells were present.
+\end{itemize}
+
+the corresponding hypotheses were:
+\[
+H_0:\ P(X = k \mid \text{Placebo}) = P(X = k \mid \text{D-penicillamine}) \ \text{for all } k
+\]
+\[
+H_1:\ \exists\, k \text{ such that }
+P(X = k \mid \text{Placebo}) \neq P(X = k \mid \text{D-penicillamine})
+\]
+
+Figure~\ref{fig:eda_baseline_cat} shows that all categorical variables (sex, ascites, spider angiomas, edema, and histologic stage) are well balanced between treatment groups (all $p>0.20$). Therefore, we fail to reject the null hypothesis, indicating that there is no evidence of imbalance in the distribution of any categorical baseline variables. The two randomized groups are therefore comparable with respect to these characteristics.
+
+
+\section{Kaplan--Meier Survival Analysis and Log-rank Tests}
+
+To obtain an initial understanding of survival patterns prior to fitting proportional hazards models, 
+we conducted a series of Kaplan--Meier (KM) analyses comparing treatment groups and examining 
+differences across key clinical subgroups. Log-rank and stratified log-rank tests were also performed 
+to formally assess survival differences.
+
+\subsection{Overall KM curves by treatment}
+
+The Kaplan--Meier curves for the D-penicillamine and placebo groups overlapped almost completely 
+throughout the 4,000-day follow-up period (Figure~\ref{fig:km_main}), indicating no visible difference 
+in survival. The corresponding log-rank test (Figure~\ref{fig:logrank_main}) yielded a p-value of 
+\textbf{0.7}, providing no statistical evidence of a treatment effect.
+
+\subsection{Stage-stratified KM curves}
+
+Because histologic stage is a strong predictor of mortality, KM curves were evaluated within stages 1--4. 
+Survival decreased markedly with increasing stage severity (Figure~\ref{fig:km_stage}). However, 
+\emph{within each stage}, the treatment curves remained nearly identical. The stratified log-rank test 
+(Figure~\ref{fig:logrank_stage}) returned a p-value of \textbf{0.6}, confirming that stage does not modify 
+the treatment effect.
+
+\subsection{Age-stratified KM curves}
+
+Patients were grouped into age tertiles (low, medium, high). Older patients exhibited poorer survival 
+(Figure~\ref{fig:km_age}), consistent with age being an important prognostic factor. Nevertheless, within 
+each age group, the survival curves for D-penicillamine and placebo showed minimal separation. The 
+stratified log-rank test (Figure~\ref{fig:logrank_age}) yielded a p-value of \textbf{1.00}, indicating no 
+age-specific treatment differences.
+
+\subsection{Bilirubin-stratified KM curves}
+
+Significant differences in survival were observed across bilirubin quartiles, with patients in the highest 
+quartile experiencing the worst outcomes (Figure~\ref{fig:km_bili}). However, within each quartile, 
+treatment curves again overlapped. The stratified log-rank test (Figure~\ref{fig:logrank_bili}) produced 
+a p-value of \textbf{0.9}, suggesting that bilirubin does not modify the treatment effect.
+
+\subsection{Albumin-stratified KM curves}
+
+Albumin tertiles displayed clear gradients in survival, with higher albumin associated with better 
+prognosis (Figure~\ref{fig:km_alb}). Despite this, the treatment curves within each albumin tertile 
+showed no meaningful separation. The stratified log-rank test (Figure~\ref{fig:logrank_alb}) returned 
+a p-value of \textbf{1.00}, reinforcing the absence of a treatment effect.
+
+\begin{table}[htbp]
+\centering
+\small
+\resizebox{\textwidth}{!}{
+\begin{tabular}{l l r r r r r c}
+\toprule
+Test & Group & N & Observed & Expected & $(O-E)^2/E$ & $(O-E)^2/V$ & $p$-value \\
+\midrule
+\multirow{2}{*}{Unstratified}
+& D-penicillamine & 158 & 65 & 63.2 & 0.050 & 0.102 & \multirow{2}{*}{0.70} \\
+& Placebo         & 154 & 60 & 61.8 & 0.051 & 0.102 & \\
+
+\midrule
+\multirow{2}{*}{Stratified by Stage}
+& D-penicillamine & 158 & 65 & 61.8 & 0.169 & 0.343 & \multirow{2}{*}{0.60} \\
+& Placebo         & 154 & 60 & 63.2 & 0.165 & 0.343 & \\
+
+\midrule
+\multirow{2}{*}{Stratified by Age Group}
+& D-penicillamine & 158 & 65 & 65.2 & 0.0005 & 0.0011 & \multirow{2}{*}{1.00} \\
+& Placebo         & 154 & 60 & 59.8 & 0.0006 & 0.0011 & \\
+
+\midrule
+\multirow{2}{*}{Stratified by Bilirubin Quartiles}
+& D-penicillamine & 158 & 65 & 64.4 & 0.0063 & 0.0137 & \multirow{2}{*}{0.90} \\
+& Placebo         & 154 & 60 & 60.6 & 0.0067 & 0.0137 & \\
+
+\midrule
+\multirow{2}{*}{Stratified by Albumin Tertiles}
+& D-penicillamine & 158 & 65 & 65.1 & 0.0026 & 0.0006 & \multirow{2}{*}{1.00} \\
+& Placebo         & 154 & 60 & 59.9 & 0.0028 & 0.0006 & \\
+\bottomrule
+\end{tabular}
+}
+\caption{Log-rank and stratified log-rank tests comparing treatment groups}
+\label{tab:logrank_full}
+\end{table}
+
+\section{Cox Proportional Hazards Model}
+
+\subsection{Methods}
+
+We fitted a Cox proportional hazards regression model to evaluate the treatment effect of D-penicillamine versus placebo on survival, adjusting for baseline clinical and laboratory covariates. Before model fitting, we created clinically meaningful transformed variables: log-bilirubin was used to reduce skewness and stabilize hazard ratio estimates, and age was converted from days to years for easier interpretation. Edema was collapsed into a binary indicator (0 = no edema, 1 = edema present with or without diuretics). Due to substantial missingness in triglycerides (9.6\%) and cholesterol (9.0\%), these variables were excluded from the analysis. The remaining covariates had minimal missingness (platelets: 1.3\%, copper: 0.6\%), and a complete-case approach was employed for model fitting.
+
+The initial main Cox proportional hazards regression model included treatment (drug), age, log-bilirubin, albumin, prothrombin time, sex, ascites, edema, platelets, and copper, and histologic stage is treated as a stratification factor. The proportional hazards assumption was evaluated using scaled Schoenfeld residuals and the global test. After fitting the main model, we seek to simplify the model using variable selection, and we used purposeful backward elimination strategy: at each step, we removed one candidate variable and assessed whether the likelihood ratio test indicated significantly worse fit (p $<$ 0.05) and whether the treatment hazard ratio or key prognostic hazard ratios changed substantially ($>$10\%). Variables that met neither criterion were dropped for parsimony. Also, the candidate variable is selected from the variable that is not strong prognostic factors
+
+
+\subsection{Results}
+
+The main Cox model was fitted on 306 patients with 123 observed deaths. 
+\begin{table}[h!]
+\centering
+\caption{Cox proportional hazards model for the main model with all covariates (n = 306, events = 123).}
+\label{tab:cox_main}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Variable} & \textbf{Coef} & \textbf{HR} & \textbf{95\% CI} & \textbf{z} & \textbf{p-value} \\
+\midrule
+Drug (Placebo vs D-pen) & 0.171 & 1.19 & 0.81 -- 1.73 & 0.888 & 0.375 \\
+Age (per year) & 0.025 & 1.03 & 1.01 -- 1.05 & 2.615 & 0.009 ** \\
+log(Bilirubin) & 0.810 & 2.25 & 1.78 -- 2.83 & 6.837 & $<$0.001 *** \\
+Albumin & $-$0.776 & 0.46 & 0.27 -- 0.77 & $-$2.922 & 0.003 ** \\
+Prothrombin & 0.273 & 1.31 & 1.07 -- 1.61 & 2.632 & 0.009 ** \\
+Sex (Male vs Female) & 0.246 & 1.28 & 0.71 -- 2.30 & 0.818 & 0.413 \\
+Ascites (Yes vs No) & 0.020 & 1.02 & 0.55 -- 1.89 & 0.063 & 0.950 \\
+Edema (Yes vs No) & 0.455 & 1.58 & 0.97 -- 2.57 & 1.825 & 0.068 . \\
+Platelets (per unit) & $-$0.001 & 1.00 & 1.00 -- 1.00 & $-$0.555 & 0.579 \\
+Copper (per unit) & 0.002 & 1.00 & 1.00 -- 1.00 & 1.370 & 0.171 \\
+\bottomrule
+\end{tabular}
+
+\vspace{0.3cm}
+\small
+\textit{Note:} Concordance = 0.803 (SE = 0.025). Stratified by histologic stage. \\
+Signif. codes: *** $p < 0.001$, ** $p < 0.01$, * $p < 0.05$, . $p < 0.1$
+\end{table}
+In this fully adjusted model, D-penicillamine showed no significant survival benefit compared with placebo (HR = 1.19, 95\% CI: 0.81--1.73, p = 0.375). Several baseline factors emerged as strong prognostic predictors: older age (HR = 1.03 per year, p = 0.009), higher log-bilirubin (HR = 2.25, p $<$ 0.001), lower albumin (HR = 0.46, p = 0.003), and longer prothrombin time (HR = 1.31, p = 0.009). In contrast, sex, ascites, platelets, and copper showed weak or null effects.
+
+The proportional hazards assumption was evaluated using the \texttt{cox.zph} test.
+\begin{table}[h!]
+\centering
+\caption{Proportional hazards test for the main Cox model.}
+\label{tab:ph_main}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Variable} & \textbf{Chi-square} & \textbf{df} & \textbf{p-value} \\
+\midrule
+Drug & 0.759 & 1 & 0.384 \\
+Age & 0.203 & 1 & 0.652 \\
+log(Bilirubin) & 1.820 & 1 & 0.177 \\
+Albumin & 0.007 & 1 & 0.935 \\
+Prothrombin & 4.105 & 1 & 0.043 \\
+Sex & 0.064 & 1 & 0.800 \\
+Ascites & 0.011 & 1 & 0.916 \\
+Edema & 6.623 & 1 & 0.010 \\
+Platelets & 0.255 & 1 & 0.614 \\
+Copper & 0.419 & 1 & 0.517 \\
+\midrule
+\textbf{GLOBAL} & \textbf{15.249} & \textbf{10} & \textbf{0.123} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The global test (p = 0.123) did not indicate strong overall violation of the PH assumption. Most individual covariates satisfied the assumption well (p $>$ 0.10), though prothrombin (p = 0.043) and edema (p = 0.010) showed borderline departures. Schoenfeld residual plots for these two variables revealed mild curvature over time (Figures~\ref{fig:schoen_pro} and \ref{fig:schoen_edema}), it shows their effects may vary slightly during follow-up, but the deviations is slightly.
+
+For purposeful backward elimination, we sequentially removed copper (LRT p = 0.18), platelets (LRT p = 0.59), sex (LRT p = 0.12), and ascites (LRT p = 0.59), as none materially improved model fit or altered the treatment effect. The final reduced model retained drug, age, log-bilirubin, albumin, prothrombin, and edema, with stage as a stratification factor. 
+\begin{table}[h!]
+\centering
+\caption{ Cox proportional hazards model after variable selection (n = 306, events = 123).}
+\label{tab:cox_reduced}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Variable} & \textbf{Coef} & \textbf{HR} & \textbf{95\% CI} & \textbf{z} & \textbf{p-value} \\
+\midrule
+Drug (Placebo vs D-pen) & 0.211 & 1.23 & 0.85 -- 1.80 & 1.100 & 0.271 \\
+Age (per year) & 0.032 & 1.03 & 1.01 -- 1.05 & 3.454 & $<$0.001 *** \\
+log(Bilirubin) & 0.873 & 2.39 & 1.94 -- 2.95 & 8.214 & $<$0.001 *** \\
+Albumin & $-$0.780 & 0.46 & 0.28 -- 0.74 & $-$3.165 & 0.002 ** \\
+Prothrombin & 0.263 & 1.30 & 1.07 -- 1.58 & 2.634 & 0.008 ** \\
+Edema (Yes vs No) & 0.460 & 1.58 & 1.01 -- 2.50 & 1.982 & 0.047 * \\
+\bottomrule
+\end{tabular}
+\vspace{0.2cm}
+\\ \small \textit{Note:} Concordance = 0.793 (SE = 0.025). Stratified by histologic stage.
+\\ \small Signif. codes: *** $p < 0.001$, ** $p < 0.01$, * $p < 0.05$
+\end{table}
+
+In this parsimonious model, all retained prognostic factors remained statistically significant: age (HR = 1.03, p $<$ 0.001), log-bilirubin (HR = 2.39, p $<$ 0.001), albumin (HR = 0.46, p = 0.002), prothrombin (HR = 1.30, p = 0.008), and edema (HR = 1.58, p = 0.047). The treatment effect remained non-significant (HR = 1.23, 95\% CI: 0.85--1.80, p = 0.271). The model achieved a concordance index of 0.793, indicating good discriminative ability. 
+\begin{table}[h!]
+\centering
+\caption{Proportional hazards test for the reduced Cox model.}
+\label{tab:ph_reduced}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Variable} & \textbf{Chi-square} & \textbf{df} & \textbf{p-value} \\
+\midrule
+Drug & 0.603 & 1 & 0.437 \\
+Age & 0.716 & 1 & 0.398 \\
+log(Bilirubin) & 2.080 & 1 & 0.149 \\
+Albumin & 0.000 & 1 & 0.994 \\
+Prothrombin & 3.840 & 1 & 0.050 \\
+Edema & 6.390 & 1 & 0.011 \\
+\midrule
+\textbf{GLOBAL} & \textbf{14.10} & \textbf{6} & \textbf{0.029} \\
+\bottomrule
+\end{tabular}
+\end{table}
+But from the results of proportional hazards test for this model, the proportional hazards assumption is violated, non-PH signal mainly comes from prothrombin and edema, dropping the weak variables does not solve this.
+
+ 
+\subsection{Discussion}
+
+The Cox regression analysis shows that D-penicillamine does not improve survival in patients with primary biliary cirrhosis. The treatment hazard ratio of approximately 1.2 (95 CI: 0.85–1.80) was consistent across both the full and reduced models, suggesting that this null finding is robust to different model specifications.
+
+In contrast, several baseline markers of disease severity were strong prognostic factors. Elevated bilirubin was the strongest predictor, with each unit increase in log-bilirubin more than doubling the hazard of death (HR $\approx$ 2.4). Lower serum albumin was associated with a roughly 2-fold increase in mortality risk. Older age and prolonged prothrombin time also predicted worse outcomes. The presence of edema was associated with approximately 60 percent higher mortality, consistent with its role as a marker of advanced liver disease.
+
+For the proportional hazards diagnostics, the global test was not significant for the main model (p = 0.123), while the reduced model showed borderline PH violation (p = 0.029), mainly due to prothrombin and edema. Importantly, the treatment effect showed no time-varying behavior, supporting the validity of the null effect estimate. A sensitivity analysis excluding edema confirmed that this mild non-proportionality did not affect the treatment effect (HR changed from 1.23 to 1.17). Overall, these findings indicate that D-penicillamine does not improve survival in this population, while baseline liver function markers are the main predictors of prognosis.
+
+
+\section{Stepwise and Lasso Cox Proportional Hazard Regression Model}
+\subsection{Method}
+Two model choosing methods are used to confirm our variable selections. A Stepwise Cox Proportional Hazard regression was performed to identify the most parsimonious model that estimates subjects’ hazard of Cirrhosis. The model selection was based on Akaike’s Information Criterion (AIC). Another LASSO Cox Proportional Hazard regression was performed to identify the most parsimonious model that estimates subjects’ hazard of Cirrhosis. The model selection was based on the penalty parameter $\lambda$. Cross-validation further selects the $\lambda$ that generalizes the best and determines variables to develop the final model. 
+
+\subsection{Results}
+
+The final Stepwise Cox model achieved the lowest AIC of 1068.622, including the variables of Edema Presence, Albumin (mg/dl), Urine copper (ug/day), SGOT (U/ml), Prothrombin time (s), histologic stage of disease, age (years), and log-transformed serum Bilirubin (mg/dl) as predictors. Several variables showed significant associations ($p < 0.05$) with the hazard function, while disease stages (all $p$-values $> 0.05$) and SGOT ($p$-value $> 0.01$) are weaker contributors to the model. The overall model exhibits significant discriminative ability for subjects’ hazards, with a concordance of 0.858. Global tests show the model has a good fit (Wald test, $p < 2\times10^{-16}$). The final model from stepwise selection further supported the results from the above data Cox PH model that drug is an insignificant predictor. Urine copper and SGOT, in addition, were kept in the stepwise Cox model, but were removed in the final proposed model. The result of the model Table~\ref{tab:stepwise_cox} are shown below.
+
+\begin{table}[htbp]
+\centering
+\begin{threeparttable}
+\caption{Stepwise Cox Proportional Hazards Regression Model}
+\label{tab:stepwise_cox}
+\small
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Term} & \textbf{Estimate} & \textbf{Std. Error} & \textbf{Wald $z$} & \textbf{$p$-value} \\
+\midrule
+edema\_bin      & 0.476 & 0.231 &  2.058 & 0.040$^{*}$ \\
+albumin        & -0.763 & 0.255 & -2.992 & 0.003$^{**}$ \\
+copper         & 0.002 & 0.001 &  1.995 & 0.046$^{*}$ \\
+sgot           & 0.003 & 0.002 &  1.644 & 0.100 \\
+prothrombin    & 0.289 & 0.103 &  2.806 & 0.005$^{**}$ \\
+stage 2        & 1.346 & 1.061 &  1.269 & 0.204 \\
+stage 3        & 1.479 & 1.034 &  1.430 & 0.153 \\
+stage 4        & 1.763 & 1.033 &  1.707 & 0.088 \\
+age\_years     & 0.030 & 0.009 &  3.231 & 0.001$^{**}$ \\
+log(bilirubin) & 0.715 & 0.121 &  5.908 & $<0.001^{***}$ \\
+\midrule
+\multicolumn{5}{l}{\textbf{Model summary}} \\
+\midrule
+$n$            & \multicolumn{4}{l}{306} \\
+Events         & \multicolumn{4}{l}{123} \\
+Wald statistic & \multicolumn{4}{l}{195.21} \\
+AIC            & \multicolumn{4}{l}{1068.62} \\
+BIC            & \multicolumn{4}{l}{1096.74} \\
+\bottomrule
+\end{tabular}
+
+\begin{tablenotes}[flushleft]
+\footnotesize
+$^{*}p<0.05$, $^{**}p<0.01$, $^{***}p<0.001$.  
+Hazard ratios can be obtained by exponentiating the coefficient estimates.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+The final Lasso model achieved the penalty parameter of 0.071, including the variables of Ascites Presence, Edema Presence, Albumin (mg/dl), Urine copper (ug/day), Prothrombin time (s), histologic stage 4 of disease, age (years), and log-transformed serum Bilirubin (mg/dl) as predictors. Another simpler model was provided with the log-transformed serum Bilirubin (mg/dl) as the only predictor,
+which allows the largest penalty parameter at which the MSE is within one standard error of the smallest MSE (0.224). The model with the smallest penalty parameter was considered due to its better performance in estimation. The final model from LASSO selection further supported the results from the above data Cox Proportional Hazard model that drug is an insignificant predictor. Ascites Presence and Urine copper, in addition, were kept in the LASSO Cox model, but were removed in the final proposed model.
+
+
+\section*{Nomogram}
+
+\subsection*{Nomogram}
+The figure shows the nomogram generated to estimate patients’ 1-, 3-, and 5-year survival based on the final Cox PH survival prediction model. The nomogram produces similar results when treatment types are not strong predictors in the model. It translates the regression coefficients into a point-based scoring system, allowing clinicians to estimate 1-, 3-, and 5-year survival probabilities for patients with cirrhosis. Each predictor in the model (drug assignment, age, log-bilirubin, albumin, prothrombin time, presence of edema, and disease stage) has a scale that assigns a value to a specific hazard point. By summing a patient’s points for each variable, therapists can obtain a total score and use it to estimate 1-, 3-, and 5-year survival probabilities, with higher total point values indicating lower predicted survival. Nomograms provide an intuitive and feasible method for applying the survival prediction model and enhance clinical decision-making by offering quick, individualized risk estimates.
+
+\section{Conclusion}
+
+\vspace{1em}
+
+\newpage
+
+\section{Reference}
+
+\section{Team members and Roles}
+Each member owns the results and conclusions for their assigned analysis.
+\begin{itemize}
+    \item Yixin Zheng yz4993: Title, Objective, Descriptive and Exploratory Analysis(Baseline Table, T-test/Wilcoxon/X2), final report structure and content wrap up
+    \item Zhaokun Lin zl3544 : Statistical analysis (part), Cox Model methods, HR, CI, and PH assumptions check
+    \item Wenjie Wu ww2744 : Data description, statistical analysis(part), Data Cleaning, part of EDA, github build, final report format and content wrap up
+    \item Puyuan Zhang pz2334 : Timeline, statistical analysis(part), primary analysis (Kaplan-Meier and log-rank analysis)
+    \item Chuyuan Xu cx2347 : Background, Reference, Exploratory multivariable modeling (stepwise Cox/Lasso, nomograms)
+\end{itemize}
+
+\section{Appendix: Figures and Code Results}
+\begin{itemize}
+    \item Figure~\ref{fig:eda_age} — Age distribution by survival status
+    \item Figure~\ref{fig:eda_numeric} — Distribution of numeric variables
+    \item Figure~\ref{fig:eda_lab} — Albumin and Bilirubin by survival status
+    \item Figure~\ref{fig:eda_corr} — Correlation heatmap
+    \item Figure~\ref{fig:eda_baseline_cont} — Baseline continuous variables by treatment group (randomized complete cases)
+    \item Figure~\ref{fig:eda_baseline_cat} — Baseline categorical variables by treatment group (randomized patients)
+\end{itemize}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.7\linewidth]{Age distribution.png}
+    \caption{Age distribution by survival status}
+    \label{fig:eda_age}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.7\linewidth]{Distribution of numeric variables.png}
+    \caption{Distribution of numeric variables across patients}
+    \label{fig:eda_numeric}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.7\linewidth]{Lab markers distribution.png}
+    \caption{Key lab markers (albumin and bilirubin) by survival status}
+    \label{fig:eda_lab}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.7\linewidth]{correlation heatmap.png}
+    \caption{Correlation heatmap among continuous variables}
+    \label{fig:eda_corr}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=1\linewidth]{eda_baseline_cont.png}
+    \caption{Baseline continuous variables by treatment group (randomized complete cases)}
+    \label{fig:eda_baseline_cont}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=1\linewidth]{eda_baseline_cat.png}
+    \caption{Baseline categorical variables by treatment group (randomized patients)}
+    \label{fig:eda_baseline_cat}
+\end{figure}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.85\linewidth]{km_plot_main.png}
+\caption{Kaplan--Meier survival curves comparing D-penicillamine and placebo.}
+\label{fig:km_main}
+\end{figure}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.85\linewidth]{km_plot_stage.png}
+\caption{Kaplan--Meier survival curves stratified by histologic stage.}
+\label{fig:km_stage}
+\end{figure}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.85\linewidth]{km_plot_age.png}
+\caption{Kaplan--Meier survival curves stratified by age groups.}
+\label{fig:km_age}
+\end{figure}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.85\linewidth]{km_plot_bili.png}
+\caption{Kaplan--Meier survival curves stratified by bilirubin quartiles.}
+\label{fig:km_bili}
+\end{figure}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.85\linewidth]{km_plot_alb.png}
+\caption{Kaplan--Meier survival curves stratified by albumin tertiles.}
+\label{fig:km_alb}
+\end{figure}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.6\linewidth]{logrank_main.png}
+\caption{Log-rank test for comparing treatment groups.}
+\label{fig:logrank_main}
+\end{figure}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.6\linewidth]{logrank_stage.png}
+\caption{Stratified log-rank test adjusting for histologic stage.}
+\label{fig:logrank_stage}
+\end{figure}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.6\linewidth]{logrank_age.png}
+\caption{Stratified log-rank test adjusting for age groups.}
+\label{fig:logrank_age}
+\end{figure}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.6\linewidth]{logrank_bili.png}
+\caption{Stratified log-rank test adjusting for bilirubin quartiles.}
+\label{fig:logrank_bili}
+\end{figure}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.6\linewidth]{logrank_alb.png}
+\caption{Stratified log-rank test adjusting for albumin tertiles.}
+\label{fig:logrank_alb}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.7\linewidth]{schoenfeld_prothrombin.png}
+    \caption{Schoenfeld residuals for prothrombin over time.}
+    \label{fig:schoen_pro}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.7\linewidth]{schoenfeld_edema.png}
+    \caption{Schoenfeld residuals for edema over time.}
+    \label{fig:schoen_edema}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.7\textwidth]{Stepwise_table.png}
+    \caption{Stepwise Cox proportional hazards model showing coefficient paths.}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.7\textwidth]{Lasso_table.png}
+    \caption{LASSO Cox proportional hazards model showing coefficient paths.}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.7\textwidth]{nomgram_cx.png}
+    \caption{Nomogram for Cirrhosis Survival: 1-, 3-, and 5-year survival predictions}
+\end{figure}
+
+\end{document}
