@@ -2,7 +2,7 @@
 layout: post
 title: Longitudinal Analysis of Serum Bilirubin Trajectories in Primary Biliary Cirrhosis
 subtitle: Full report converted from R Markdown with figures
-cover-img: /assets/img/survival-analysis-cirrhosis-cover.png
+cover-img: /assets/img/picture1-post-cover.png
 tags: [Longitudinal Data, Mixed Effects, R, PBC]
 comments: true
 mathjax: true

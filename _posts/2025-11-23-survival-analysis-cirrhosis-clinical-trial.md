@@ -2,7 +2,7 @@
 layout: post
 title: Survival Analysis on Cirrhosis Clinical Trial Data
 subtitle: Kaplan-Meier, log-rank tests, and stratified Cox modeling in PBC
-cover-img: /assets/img/survival-analysis-cirrhosis-cover.png
+cover-img: /assets/img/picture1-post-cover.png
 tags: [Survival Analysis, Cox Model, Kaplan-Meier, Cirrhosis, Biostatistics]
 comments: true
 mathjax: true
